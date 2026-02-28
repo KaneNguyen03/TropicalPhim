@@ -47,6 +47,12 @@ export interface Movie {
   view?: number;
   actor?: string[];
   director?: string[];
+  breadCrumb?: {
+    name: string;
+    slug: string;
+    position: number;
+    isCurrent?: boolean;
+  }[];
 }
 
 export const featuredMovies: Movie[] = [

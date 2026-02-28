@@ -193,7 +193,8 @@ export async function getMovieDetail(slug: string): Promise<Movie | null> {
         },
         imdb: { id: '' },
         description: item.content || '',
-        episodes: json.data.item.episodes || []
+        episodes: json.data.item.episodes || [],
+        breadCrumb: json.data.breadCrumb || []
       };
       return movie;
     }

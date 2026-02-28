@@ -53,31 +53,12 @@ export default async function HomePage() {
                 <MovieCard
                   key={movie.id}
                   movie={movie}
-                  showProgress={7 > 0.7}
-                  progress={Math.floor(5 * 100)}
                 />
               ))}
             </div>
           </section>
         ))}
 
-        {/* Continue Watching Section */}
-        <section className="space-y-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-white">
-            Xem Tiếp
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {newReleases.slice(0, 3).map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                size="lg"
-                showProgress
-                progress={Math.floor(2 * 80) + 10}
-              />
-            ))}
-          </div>
-        </section>
       </div>
     </div>
   );

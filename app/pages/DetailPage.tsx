@@ -5,6 +5,7 @@ import { Badge } from '../components/ui/badge';
 import { DetailTabs } from '../components/DetailTabs';
 import { MovieCard } from '../components/MovieCard';
 import { TrailerModal } from '../components/TrailerModal';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '../components/ui/breadcrumb';
 import Image from 'next/image';
 import { getMovieDetail, getMoviesByList } from '../services/ophim';
 import type { Movie } from '../data/movies';
@@ -72,21 +73,46 @@ export default async function DetailPage({ slug }: { slug: string }) {
             <div className="flex-1 space-y-4">
               {/* Badges */}
               <div className="flex flex-wrap gap-2">
-                <Badge className="bg-[#CCFF00] text-[#0A0A0A] border-none px-3 py-1">
+                <Badge className="bg-[#CCFF00] text-[#0A0A0A] border-none px-3 py-1 font-semibold uppercase">
                   {movie.quality}
                 </Badge>
-                <Badge className="bg-[#FF6B35] text-white border-none px-3 py-1">
+                <Badge className="bg-[#FF6B35] text-white border-none px-3 py-1 uppercase">
                   {movie.year}
                 </Badge>
-                <Badge className="bg-white/20 text-white border-none px-3 py-1">
-                  {movie.type === 'series' ? 'Phim Bộ' : 'Phim Lẻ'}
-                </Badge>
                 {movie.lang && (
-                  <Badge className="bg-white/20 text-white border-none px-3 py-1">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-none px-3 py-1">
                     {movie.lang}
                   </Badge>
                 )}
               </div>
+
+              {/* Breadcrumbs */}
+              {movie.breadCrumb && movie.breadCrumb.length > 0 && (
+                <div className="pt-2">
+                  <Breadcrumb>
+                    <BreadcrumbList className="text-white/60">
+                      {movie.breadCrumb.map((item, index) => (
+                        <div key={index} className="flex items-center gap-1.5 sm:gap-2.5">
+                          <BreadcrumbItem>
+                            {item.isCurrent ? (
+                              <BreadcrumbPage className="text-white font-medium">{item.name}</BreadcrumbPage>
+                            ) : (
+                              <BreadcrumbLink asChild>
+                                <Link href={item.slug.replace('/danh-sach', '/search').replace('/the-loai', '/search?category=')} className="hover:text-[#CCFF00]">
+                                  {item.name}
+                                </Link>
+                              </BreadcrumbLink>
+                            )}
+                          </BreadcrumbItem>
+                          {index < movie.breadCrumb!.length - 1 && (
+                            <BreadcrumbSeparator className="text-white/40" />
+                          )}
+                        </div>
+                      ))}
+                    </BreadcrumbList>
+                  </Breadcrumb>
+                </div>
+              )}
 
               {/* Title */}
               <div>

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Play, Star, Clock } from 'lucide-react';
+import { Play, Star } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { cn } from '../components/ui/utils';
 import type { Movie } from '../data/movies';
@@ -40,7 +40,7 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md' }: Mo
         />
         
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         {/* Play Button - appears on hover */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -49,28 +49,35 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md' }: Mo
           </div>
         </div>
 
-        {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-          <Badge className="bg-[#FF6B35] text-white border-none">
+        {/* Top Badges */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
+          <Badge className="bg-[#CCFF00] hover:bg-[#CCFF00] text-[#0A0A0A] border-none font-bold uppercase shadow-[0_0_10px_rgba(204,255,0,0.3)]">
             {movie.quality}
           </Badge>
           {movie.lang && (
-            <Badge variant="secondary" className="bg-black/70 text-white border-none">
+            <Badge variant="secondary" className="bg-black/80 hover:bg-black/80 text-white border-white/10 backdrop-blur-md uppercase text-[10px]">
               {movie.lang}
             </Badge>
           )}
         </div>
 
-        {/* Episode indicator for series */}
-        {movie.type === 'series' && (
-          <Badge className="absolute top-2 right-2 bg-[#CCFF00] text-[#0A0A0A] border-none">
-            <Clock className="h-3 w-3 mr-1" />
-            {movie.episode_current}/{movie.episode_total}
-          </Badge>
-        )}
+        {/* Top Right Badges */}
+        <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
+          {movie.type === 'series' && movie.episode_current && (
+            <Badge variant="outline" className="bg-black/80 text-[#CCFF00] border-[#CCFF00]/50 backdrop-blur-md text-[10px]">
+              {movie.episode_current}
+            </Badge>
+          )}
+          {movie.view && movie.view > 0 ? (
+            <Badge variant="outline" className="bg-black/80 text-white border-white/20 backdrop-blur-md text-[10px] gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+              {movie.view.toLocaleString()}
+            </Badge>
+          ) : null}
+        </div>
 
         {/* Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 space-y-2">
+        <div className="absolute bottom-0 left-0 right-0 p-3 space-y-2 bg-linear-to-t from-black via-black/80 to-transparent">
           <h3 className="font-semibold text-white line-clamp-1 group-hover:text-[#CCFF00] transition-colors">
             {movie.name}
           </h3>
@@ -83,11 +90,14 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md' }: Mo
             </div>
           </div>
 
-          {/* Progress Bar */}
+          {/* Progress Bar (Continue Watching) */}
           {showProgress && progress > 0 && (
-            <div className="space-y-1">
-              <Progress value={progress} className="h-1 bg-white/20" />
-              <p className="text-xs text-white/60">{progress}% đã xem</p>
+            <div className="pt-2 space-y-1.5 border-t border-white/10 mt-2">
+              <div className="flex justify-between items-center text-[10px] text-[#CCFF00]">
+                <span>Đang xem</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-1 lg:h-1.5 [&>div]:bg-[#CCFF00] bg-white/20 rounded-full" />
             </div>
           )}
         </div>
