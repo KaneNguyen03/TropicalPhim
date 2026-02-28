@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Menu, ChevronDown, Film, Globe, List } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '../components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from '../components/ui/sheet';
 import { getCategories, getCountries } from '../services/ophim';
 import { SearchBar } from '../components/SearchBar';
 
@@ -20,7 +20,7 @@ export async function Header() {
   ]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A0A0A]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0A0A0A]/80">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A0A0A]/95 backdrop-blur supports-backdrop-filter:bg-[#0A0A0A]/80">
       <div className="container flex h-16 items-center justify-between px-4 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 shrink-0">
@@ -106,28 +106,19 @@ export async function Header() {
           </div>
         </nav>
 
-        {/* Search Bar - Desktop */}
-        <div className="hidden lg:block flex-1 max-w-xs mx-6">
+        {/* Search Bar - Desktop & Mobile */}
+        <div className="flex-1 max-w-xs mx-3 md:mx-6">
           <SearchBar />
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center space-x-2">
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="lg:hidden text-white hover:text-[#CCFF00]"
-          >
-            <Link href="/search">
-              <Film className="h-5 w-5" />
-            </Link>
-          </Button>
+        <div className="flex items-center space-x-1 md:space-x-2">
+          {/* Favorites/Search button removed as SearchBar is now visible */}
 
           {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="text-white">
+              <Button variant="ghost" size="icon" className="text-white hover:text-[#CCFF00]">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -136,9 +127,11 @@ export async function Header() {
                 <span className="text-[#CCFF00]">Tropical</span>Phim
               </SheetTitle>
               <nav className="flex flex-col space-y-1">
-                <Link href="/" className="text-base text-white/80 hover:text-[#CCFF00] px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
-                  Trang Chủ
-                </Link>
+                <SheetClose asChild>
+                  <Link href="/" className="text-base text-white/80 hover:text-[#CCFF00] px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                    Trang Chủ
+                  </Link>
+                </SheetClose>
 
                 <div className="pt-4 pb-2">
                   <p className="text-xs text-white/40 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
@@ -146,10 +139,12 @@ export async function Header() {
                   </p>
                   <div className="grid grid-cols-2 gap-1">
                     {categories.slice(0, 16).map((cat) => (
-                      <Link key={cat.id} href={`/search?category=${cat.slug}`}
-                        className="text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors truncate">
-                        {cat.name}
-                      </Link>
+                      <SheetClose key={cat.id} asChild>
+                        <Link href={`/search?category=${cat.slug}`}
+                          className="text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors truncate">
+                          {cat.name}
+                        </Link>
+                      </SheetClose>
                     ))}
                   </div>
                 </div>
@@ -160,10 +155,12 @@ export async function Header() {
                   </p>
                   <div className="grid grid-cols-2 gap-1">
                     {countries.slice(0, 12).map((country) => (
-                      <Link key={country.id} href={`/search?country=${country.slug}`}
-                        className="text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors truncate">
-                        {country.name}
-                      </Link>
+                      <SheetClose key={country.id} asChild>
+                        <Link href={`/search?country=${country.slug}`}
+                          className="text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors truncate">
+                          {country.name}
+                        </Link>
+                      </SheetClose>
                     ))}
                   </div>
                 </div>
@@ -173,10 +170,12 @@ export async function Header() {
                     <List className="h-3 w-3" /> Danh Sách
                   </p>
                   {danhSachLinks.map((link) => (
-                    <Link key={link.href} href={link.href}
-                      className="block text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
-                      {link.label}
-                    </Link>
+                    <SheetClose key={link.href} asChild>
+                      <Link href={link.href}
+                        className="block text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
+                        {link.label}
+                      </Link>
+                    </SheetClose>
                   ))}
                 </div>
               </nav>

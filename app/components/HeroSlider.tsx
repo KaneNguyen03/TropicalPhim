@@ -58,12 +58,13 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               fill
               unoptimized
               sizes="100vw"
-              priority={index === 0}
+              priority={index === currentIndex}
+              loading={index === currentIndex ? "eager" : "lazy"}
               className="object-cover"
             />
             {/* Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-r from-black via-black/60 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-[#0A0A0A] via-transparent to-transparent" />
           </div>
 
           {/* Content */}
@@ -85,9 +86,9 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               </div>
 
               {/* Title */}
-              <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
+              <h2 className="text-4xl md:text-6xl font-bold text-white leading-tight">
                 {movie.name}
-              </h1>
+              </h2>
 
               {/* Origin Name */}
               <p className="text-xl md:text-2xl text-white/70 italic">

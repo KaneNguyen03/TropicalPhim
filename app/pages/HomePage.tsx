@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { HeroSlider } from '../components/HeroSlider';
 import { MovieCard } from '../components/MovieCard';
+import { ContinueWatching } from '../components/ContinueWatching';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { getHomeMovies, getMoviesByList, getMovieDetail } from '../services/ophim';
@@ -27,6 +28,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <h1 className="sr-only">TropicalPhim — Xem Phim Trực Tuyến Miễn Phí HD Vietsub Thuyết Minh</h1>
       {/* Hero Slider */}
       <Suspense fallback={
         <div className="relative w-full h-[70vh] md:h-[80vh] bg-[#0A0A0A] animate-pulse" />
@@ -36,6 +38,9 @@ export default async function HomePage() {
 
       {/* Content Sections */}
       <div className="container mx-auto px-4 lg:px-8 py-12 space-y-12">
+        {/* Continue Watching (Client Component) */}
+        <ContinueWatching />
+
         {sections.map((section, sectionIndex) => (
           <section key={sectionIndex} className="space-y-6">
             {/* Section Header */}

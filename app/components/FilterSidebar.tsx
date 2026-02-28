@@ -3,7 +3,7 @@
 import { Filter, X, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '../components/ui/sheet';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { cn } from '../components/ui/utils';
 import { useState } from 'react';
@@ -83,12 +83,14 @@ function FilterChipLink({
   label,
   active,
   href,
+  isMobile,
 }: {
   label: string;
   active: boolean;
   href: string;
+  isMobile?: boolean;
 }) {
-  return (
+  const content = (
     <Link
       href={href}
       className={cn(
@@ -101,6 +103,12 @@ function FilterChipLink({
       {label}
     </Link>
   );
+
+  if (isMobile) {
+    return <SheetClose asChild>{content}</SheetClose>;
+  }
+
+  return content;
 }
 
 function CollapsibleSection({
@@ -116,11 +124,12 @@ function CollapsibleSection({
   return (
     <div className="border-b border-white/10 pb-4">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full text-left mb-3"
+        className="flex items-center justify-between w-full text-left mb-3 cursor-pointer group"
       >
-        <h3 className="font-semibold text-white text-sm">{title}</h3>
-        <ChevronDown className={cn('h-4 w-4 text-white/40 transition-transform', isOpen && 'rotate-180')} />
+        <h3 className="font-semibold text-white text-sm group-hover:text-[#CCFF00] transition-colors">{title}</h3>
+        <ChevronDown className={cn('h-4 w-4 text-white/40 transition-transform group-hover:text-[#CCFF00]', isOpen && 'rotate-180')} />
       </button>
       {isOpen && children}
     </div>
@@ -136,21 +145,39 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
 
   const hasActiveFilters = selectedCategory || selectedCountry || selectedYear || selectedQuality || selectedType;
 
-  const renderFilterContent = () => (
+  const renderFilterContent = (isMobile: boolean = false) => (
     <div className="space-y-4">
       {/* Reset Button */}
       {hasActiveFilters && (
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="w-full text-white/60 hover:text-[#CCFF00] hover:bg-[#CCFF00]/10 transition-all duration-200"
-        >
-          <Link href={buildResetUrl(currentFilters)}>
-            <X className="mr-2 h-3.5 w-3.5" />
-            Xóa bộ lọc
-          </Link>
-        </Button>
+        <div className="w-full">
+          {isMobile ? (
+            <SheetClose asChild>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="w-full text-white/60 hover:text-[#CCFF00] hover:bg-[#CCFF00]/10 transition-all duration-200"
+              >
+                <Link href={buildResetUrl(currentFilters)}>
+                  <X className="mr-2 h-3.5 w-3.5" />
+                  Xóa bộ lọc
+                </Link>
+              </Button>
+            </SheetClose>
+          ) : (
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="w-full text-white/60 hover:text-[#CCFF00] hover:bg-[#CCFF00]/10 transition-all duration-200"
+            >
+              <Link href={buildResetUrl(currentFilters)}>
+                <X className="mr-2 h-3.5 w-3.5" />
+                Xóa bộ lọc
+              </Link>
+            </Button>
+          )}
+        </div>
       )}
 
       {/* Loại Phim */}
@@ -160,6 +187,7 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
             <FilterChipLink
               key={t.slug}
               label={t.label}
+              isMobile={isMobile}
               active={selectedType === t.slug}
               href={buildFilterUrl(currentFilters, 'type', t.slug)}
             />
@@ -174,6 +202,7 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
             <FilterChipLink
               key={q}
               label={q}
+              isMobile={isMobile}
               active={selectedQuality === q}
               href={buildFilterUrl(currentFilters, 'quality', q)}
             />
@@ -189,6 +218,7 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
               <FilterChipLink
                 key={cat.id}
                 label={cat.name}
+                isMobile={isMobile}
                 active={selectedCategory === cat.slug}
                 href={buildFilterUrl(currentFilters, 'category', cat.slug)}
               />
@@ -205,6 +235,7 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
               <FilterChipLink
                 key={country.id}
                 label={country.name}
+                isMobile={isMobile}
                 active={selectedCountry === country.slug}
                 href={buildFilterUrl(currentFilters, 'country', country.slug)}
               />
@@ -220,6 +251,7 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
             <FilterChipLink
               key={year}
               label={String(year)}
+              isMobile={isMobile}
               active={selectedYear === String(year)}
               href={buildFilterUrl(currentFilters, 'year', String(year))}
             />
@@ -238,7 +270,7 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
             <Filter className="h-4 w-4 text-[#CCFF00]" />
             <h2 className="font-bold text-white">Bộ Lọc</h2>
           </div>
-          {renderFilterContent()}
+          {renderFilterContent(false)}
         </div>
       </aside>
 
@@ -247,20 +279,20 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
         <SheetTrigger asChild className="lg:hidden">
           <Button
             variant="outline"
-            className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 shadow-lg bg-[#CCFF00] hover:bg-[#CCFF00]/90 border-none p-0"
+            className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 shadow-lg bg-[#CCFF00] hover:bg-[#CCFF00]/90 border-none p-0 cursor-pointer"
           >
             <Filter className="h-6 w-6 text-[#0A0A0A]" />
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="bg-[#171717] border-white/10 w-[300px]">
           <SheetHeader>
-            <SheetTitle className="text-white flex items-center gap-2">
+            <SheetTitle className="text-white flex items-center gap-2 font-bold">
               <Filter className="h-4 w-4 text-[#CCFF00]" />
               Bộ Lọc
             </SheetTitle>
           </SheetHeader>
-          <div className="mt-6 overflow-y-auto">
-            {renderFilterContent()}
+          <div className="mt-6 overflow-y-auto pr-2 h-[calc(100vh-8rem)]">
+            {renderFilterContent(true)}
           </div>
         </SheetContent>
       </Sheet>

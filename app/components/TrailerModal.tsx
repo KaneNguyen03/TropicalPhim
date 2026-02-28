@@ -40,7 +40,7 @@ export function TrailerModal({ trailerUrl }: { trailerUrl: string }) {
         </Button>
       </DialogTrigger>
         <DialogContent 
-        className="!max-w-[90vw] md:!max-w-[70vw] w-full p-0 bg-transparent border-none shadow-none [&>button]:bg-black/50 [&>button]:text-white [&>button]:hover:bg-black/80"
+        className="max-w-[90vw]! md:max-w-[70vw]! w-full p-0 bg-transparent border-none shadow-none [&>button]:bg-black/50 [&>button]:text-white [&>button]:hover:bg-black/80"
         >
         <DialogTitle className="sr-only">Trailer Phim</DialogTitle>
         

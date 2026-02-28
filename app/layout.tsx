@@ -2,14 +2,47 @@ import { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://tropicalphim.com'), // Replace with actual domain
   title: {
-    default: "TropicalPhim — Xem Phim Trực Tuyến",
+    default: "TropicalPhim — Xem Phim Trực Tuyến Miễn Phí",
     template: "%s | TropicalPhim",
   },
   description:
-    "TropicalPhim — Tổng hợp phim trực tuyến miễn phí, xem phim HD Vietsub, Thuyết Minh mới nhất 2026.",
+    "TropicalPhim — Nền tảng xem phim trực tuyến miễn phí chất lượng cao. Tổng hợp phim mới, phim bộ, phim lẻ, hoạt hình Vietsub & Thuyết Minh nhanh nhất.",
+  keywords: ["xem phim", "xem phim trực tuyến", "phim mới", "phim vietsub", "tropicalphim", "phim hd"],
+  authors: [{ name: "TropicalPhim Team" }],
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    url: "https://tropicalphim.com",
+    siteName: "TropicalPhim",
+    title: "TropicalPhim — Xem Phim Trực Tuyến Miễn Phí",
+    description: "Nền tảng xem phim trực tuyến miễn phí chất lượng cao. Cập nhật phim mới mỗi ngày.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "TropicalPhim",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TropicalPhim — Xem Phim Trực Tuyến Miễn Phí",
+    description: "Nền tảng xem phim trực tuyến miễn phí chất lượng cao.",
+    images: ["/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
   },
 };
 

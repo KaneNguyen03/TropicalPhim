@@ -37,8 +37,29 @@ export default async function DetailPage({ slug }: { slug: string }) {
     ? `/watch/${movie.slug}/${movie.episodes[0].server_data[0].slug}`
     : `/watch/${movie.slug}`;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    "name": movie.name,
+    "alternateName": movie.origin_name,
+    "image": [movie.poster_url, movie.thumb_url],
+    "datePublished": `${movie.year}-01-01`,
+    "description": movie.description.replace(/<[^>]*>?/gm, ''),
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": movie.tmdb?.vote_average || 0,
+      "bestRating": "10",
+      "worstRating": "1",
+      "ratingCount": movie.tmdb?.vote_count || 1
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0A]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <div className="relative w-full h-[60vh] md:h-[70vh]">
         {/* Background */}
@@ -49,9 +70,10 @@ export default async function DetailPage({ slug }: { slug: string }) {
             fill
             sizes="100vw"
             priority
+            loading="eager"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-black via-black/80 to-transparent" />
           <div className="absolute inset-0 bg-linear-to-t from-[#0A0A0A] via-transparent to-transparent" />
         </div>
 
@@ -59,7 +81,7 @@ export default async function DetailPage({ slug }: { slug: string }) {
         <div className="relative container mx-auto px-4 lg:px-8 h-full flex items-end pb-12">
           <div className="flex flex-col md:flex-row gap-8 w-full">
             {/* Poster */}
-            <div className="hidden md:block shrink-0 relative w-64 h-[24rem]">
+            <div className="hidden md:block shrink-0 relative w-64 h-96">
               <Image
                 src={movie.poster_url}
                 alt={movie.name}

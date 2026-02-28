@@ -19,12 +19,48 @@ interface VideoPlayerProps {
   movieName: string;
   movieSlug: string;
   thumbUrl: string;
+  trailerUrl?: string;
 }
 
-export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl }: VideoPlayerProps) {
+export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUrl }: VideoPlayerProps) {
   const [server, setServer] = useState<'embed' | 'm3u8'>('embed');
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [hlsError, setHlsError] = useState<string | null>(null);
+
+  // Auto-rotate logic for mobile
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (document.fullscreenElement === containerRef.current) {
+        // Tentative lock to landscape
+        try {
+          const orientation = window.screen.orientation as ScreenOrientation & { lock?: (type: string) => Promise<void> };
+          if (orientation?.lock) {
+            orientation.lock('landscape').catch(() => {
+              // Ignore if fails (e.g. not supported or requires gesture)
+            });
+          }
+        } catch (e) {
+          console.warn("Orientation lock error:", e);
+        }
+      } else {
+        // Unlock orientation
+        try {
+          const orientation = window.screen.orientation as ScreenOrientation & { unlock?: () => void };
+          if (orientation?.unlock) {
+            orientation.unlock();
+          }
+        } catch {}
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   const handleTimeUpdate = () => {
     if (!episode || !videoRef.current) return;
@@ -33,8 +69,18 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl }: VideoPl
       if (videoRef.current.currentTime > 5) {
         localStorage.setItem(`tropicalphim_progress_${movieSlug}`, JSON.stringify({
           episodeSlug: episode.slug,
-          time: videoRef.current.currentTime
+          time: videoRef.current.currentTime,
+          duration: videoRef.current.duration,
+          movieName,
+          thumbUrl,
+          updatedAt: Date.now()
         }));
+
+        // Update recent list
+        const recent = JSON.parse(localStorage.getItem('tropicalphim_recent') || '[]');
+        const filtered = recent.filter((r: { slug: string }) => r.slug !== movieSlug);
+        const updated = [{ slug: movieSlug, name: movieName, thumb: thumbUrl, updatedAt: Date.now() }, ...filtered].slice(0, 10);
+        localStorage.setItem('tropicalphim_recent', JSON.stringify(updated));
       }
     } catch {
       // Ignore if block storage
@@ -125,7 +171,10 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl }: VideoPl
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Container video */}
-      <div className="relative aspect-video bg-black rounded-lg overflow-hidden border border-white/10 group shadow-2xl">
+      <div 
+        ref={containerRef}
+        className="relative aspect-video bg-black rounded-lg overflow-hidden border border-white/10 group shadow-2xl"
+      >
         {!episode ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A0A0A]">
 
@@ -134,6 +183,8 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl }: VideoPl
               alt={movieName} 
               fill
               unoptimized
+              priority
+              loading="eager"
               sizes="(max-width: 768px) 100vw, 100vw"
               className="object-cover opacity-30 blur-sm brightness-50 z-0" 
             />
@@ -144,11 +195,45 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl }: VideoPl
               <p className="text-white text-lg md:text-xl font-medium">Vui lòng chọn tập phim để xem</p>
             </div>
           </div>
+        ) : (!episode.link_embed && !episode.link_m3u8) ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A0A0A] text-center p-6 space-y-5">
+            <Image 
+              src={thumbUrl} 
+              alt={movieName} 
+              fill
+              unoptimized
+              priority
+              loading="eager"
+              className="object-cover opacity-20 blur-sm brightness-50 z-0" 
+            />
+            <div className="relative z-10 space-y-4 max-w-md">
+              <div className="bg-yellow-500/20 rounded-full p-4 inline-block">
+                <AlertCircle className="w-10 h-10 text-yellow-500" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-white text-xl font-bold">Phim chưa có bản xem trực tuyến</h3>
+                <p className="text-white/60 text-sm">
+                  Hiện tại phim này đang ở trạng thái Trailer hoặc chưa được cập nhật link xem từ máy chủ. 
+                  Bạn có thể xem Trailer bên dưới hoặc quay lại sau.
+                </p>
+              </div>
+              {trailerUrl && (
+                <Button 
+                  asChild
+                  className="bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-[#0A0A0A] font-bold rounded-full px-8"
+                >
+                  <a href={trailerUrl} target="_blank" rel="noopener noreferrer">
+                    Xem Trailer trên YouTube
+                  </a>
+                </Button>
+              )}
+            </div>
+          </div>
         ) : (
           <>
             {server === 'embed' ? (
               <iframe
-                src={episode.link_embed}
+                src={episode.link_embed || undefined}
                 allow="autoplay; fullscreen"
                 allowFullScreen
                 className="w-full h-full border-0 absolute top-0 left-0 bg-black"

@@ -2,47 +2,65 @@
 
 import { Home, Search, Film, Tv } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '../components/ui/utils';
+import { Suspense } from 'react';
 
 const navItems = [
   { icon: Home, label: 'Trang Chủ', path: '/', matchExact: true },
-  { icon: Search, label: 'Tìm Kiếm', path: '/search', matchExact: false },
-  { icon: Film, label: 'Phim Bộ', path: '/search?type=phim-bo', matchExact: false },
-  { icon: Tv, label: 'Phim Lẻ', path: '/search?type=phim-le', matchExact: false },
+  { icon: Search, label: 'Tìm Kiếm', path: '/search', params: {}, matchExact: true },
+  { icon: Film, label: 'Phim Bộ', path: '/search', params: { type: 'phim-bo' }, matchExact: false },
+  { icon: Tv, label: 'Phim Lẻ', path: '/search', params: { type: 'phim-le' }, matchExact: false },
 ];
 
-export function MobileNav() {
+function NavContent() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#171717]/95 border-t border-white/10 backdrop-blur-lg">
-      <div className="grid grid-cols-4 h-16">
-        {navItems.map((item) => {
-          const isActive = item.matchExact
-            ? pathname === item.path
-            : pathname.startsWith(item.path.split('?')[0]) && item.path === '/search'
-              ? pathname === '/search'
-              : pathname === item.path.split('?')[0];
+    <div className="grid grid-cols-4 h-16">
+      {navItems.map((item) => {
+        let isActive = false;
+        
+        if (item.matchExact) {
+          isActive = pathname === item.path && (!item.params || Object.keys(item.params).length === 0 || Array.from(searchParams.entries()).length === 0);
+        } else if (item.params) {
+          isActive = pathname === item.path && Object.entries(item.params).every(([key, val]) => searchParams.get(key) === val);
+        } else {
+          isActive = pathname.startsWith(item.path);
+        }
 
-          return (
-            <Link
-              key={item.path}
-              href={item.path}
-              prefetch={true}
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 transition-colors',
-                isActive
-                  ? 'text-[#CCFF00]'
-                  : 'text-white/60 hover:text-white'
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="text-xs">{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
+        const href = item.params && Object.keys(item.params).length > 0
+          ? `${item.path}?${new URLSearchParams(item.params as Record<string, string>).toString()}`
+          : item.path;
+
+        return (
+          <Link
+            key={href}
+            href={href}
+            prefetch={true}
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 transition-colors',
+              isActive
+                ? 'text-[#CCFF00]'
+                : 'text-white/60 hover:text-white'
+            )}
+          >
+            <item.icon className={cn("h-5 w-5", isActive && "animate-pulse")} />
+            <span className="text-xs font-medium">{item.label}</span>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+export function MobileNav() {
+  return (
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#171717]/95 border-t border-white/10 backdrop-blur-lg">
+      <Suspense fallback={<div className="h-16 w-full animate-pulse bg-white/5" />}>
+        <NavContent />
+      </Suspense>
     </nav>
   );
 }

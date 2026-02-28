@@ -96,6 +96,7 @@ export default async function WatchPage({ slug, episodeSlug, serverIndex = 0 }: 
               movieName={movie.name} 
               movieSlug={movie.slug}
               thumbUrl={movie.thumb_url} 
+              trailerUrl={movie.trailer_url}
             />
           </div>
 
