@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TropicalPhim
 
-## Getting Started
+A modern movie streaming application built with [Next.js](https://nextjs.org) and [React](https://react.dev). TropicalPhim provides users with a seamless experience to browse, search, and watch movies and TV series with features like filtering, detailed movie information, episode management, and video playback.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Movie & Series Browsing**: Browse extensive catalog of movies and TV series
+- **Search Functionality**: Advanced search to find movies and series easily
+- **Filtering**: Filter content by genre and other criteria
+- **Movie Details**: Detailed information with tabs for overview, cast, and more
+- **Episode Management**: Watch episodes with organized episode listings
+- **Video Player**: Built-in video player for streaming content
+- **Responsive Design**: Mobile-friendly interface with responsive navigation
+- **Hero Slider**: Featured content showcase on the homepage
+- **Continue Watching**: Resume watching from where you left off
+- **Share Functionality**: Share movies and series with others
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: [Next.js](https://nextjs.org) with TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Custom component library with shadcn/ui components
+- **Video Streaming**: Integration with Ophim API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+![Preview](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+## License
 
-## Learn More
+Copyright © 2026 Kanenguyen03. All rights reserved.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is provided as-is for personal use. Unauthorized copying or distribution is prohibited.
