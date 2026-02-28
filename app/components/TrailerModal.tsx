@@ -39,18 +39,22 @@ export function TrailerModal({ trailerUrl }: { trailerUrl: string }) {
           Trailer
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl p-0 bg-transparent border-none shadow-none [&>button]:bg-black/50 [&>button]:text-white [&>button]:hover:bg-black/80">
+        <DialogContent 
+        className="!max-w-[90vw] md:!max-w-[70vw] w-full p-0 bg-transparent border-none shadow-none [&>button]:bg-black/50 [&>button]:text-white [&>button]:hover:bg-black/80"
+        >
         <DialogTitle className="sr-only">Trailer Phim</DialogTitle>
+        
+        {/* Wrapper giữ tỉ lệ 16:9 */}
         <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black ring-1 ring-white/20 shadow-2xl">
-          <iframe
+            <iframe
             src={getEmbedUrl(trailerUrl)}
             title="Trailer"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="w-full h-full"
-          ></iframe>
+            />
         </div>
-      </DialogContent>
+        </DialogContent>
     </Dialog>
   );
 }

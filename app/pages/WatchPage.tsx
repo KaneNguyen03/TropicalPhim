@@ -8,7 +8,14 @@ import { getMovieDetail, getMoviesByList } from '../services/ophim';
 import type { Movie } from '../data/movies';
 import { WatchEpisodeList } from '../components/WatchEpisodeList';
 
-export default async function WatchPage({ slug, episodeSlug }: { slug: string; episodeSlug?: string }) {
+interface WatchPageProps {
+  slug: string;
+  episodeSlug?: string;
+  /** Server index — 0-based, default 0 (first server / Vietsub) */
+  serverIndex?: number;
+}
+
+export default async function WatchPage({ slug, episodeSlug, serverIndex = 0 }: WatchPageProps) {
   const movie = await getMovieDetail(slug);
   if (!movie) {
     return (
@@ -23,10 +30,35 @@ export default async function WatchPage({ slug, episodeSlug }: { slug: string; e
     );
   }
 
-  const currentEpisode = episodeSlug 
-    ? movie.episodes?.find(server => server.server_data.find(ep => ep.slug === episodeSlug))?.server_data.find(ep => ep.slug === episodeSlug) 
-      || movie.episodes?.[0]?.server_data[0]
-    : movie.episodes?.[0]?.server_data[0] || null;
+  // Clamp server index to valid range
+  const servers = movie.episodes ?? [];
+  const safeServerIdx = Math.min(Math.max(serverIndex, 0), Math.max(servers.length - 1, 0));
+
+  // Resolve the episode from the correct server
+  let currentEpisode: { name: string; slug: string; filename: string; link_embed: string; link_m3u8?: string } | null = null;
+
+  if (episodeSlug && servers.length > 0) {
+    // First: try to find the episode in the specified server
+    const targetServer = servers[safeServerIdx];
+    const found = targetServer?.server_data.find((ep) => ep.slug === episodeSlug);
+    if (found) {
+      currentEpisode = found;
+    } else {
+      // Fallback: search all servers (in case server index is wrong)
+      for (const server of servers) {
+        const ep = server.server_data.find((e) => e.slug === episodeSlug);
+        if (ep) {
+          currentEpisode = ep;
+          break;
+        }
+      }
+    }
+  }
+
+  // Default: first episode of first server
+  if (!currentEpisode) {
+    currentEpisode = servers[0]?.server_data[0] ?? null;
+  }
 
   // Fetch some related movies based on the first category if available
   let relatedMovies: Movie[] = [];
@@ -34,6 +66,9 @@ export default async function WatchPage({ slug, episodeSlug }: { slug: string; e
     relatedMovies = await getMoviesByList(movie.category[0].slug);
     relatedMovies = relatedMovies.filter(m => m.id !== movie.id).slice(0, 6);
   }
+
+  // Determine the active server name for display
+  const activeServerName = servers[safeServerIdx]?.server_name ?? '';
 
   return (
     <div className="min-h-screen bg-[#0A0A0A]">
@@ -57,7 +92,7 @@ export default async function WatchPage({ slug, episodeSlug }: { slug: string; e
           {/* Video Player */}
           <div className="w-full">
             <VideoPlayer 
-              episode={currentEpisode || null} 
+              episode={currentEpisode} 
               movieName={movie.name} 
               movieSlug={movie.slug}
               thumbUrl={movie.thumb_url} 
@@ -75,6 +110,11 @@ export default async function WatchPage({ slug, episodeSlug }: { slug: string; e
                   <Badge className="bg-[#FF6B35] text-white">
                     {movie.year}
                   </Badge>
+                  {activeServerName && (
+                    <Badge className="bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      {activeServerName}
+                    </Badge>
+                  )}
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-white">
                   {movie.name}
@@ -91,12 +131,14 @@ export default async function WatchPage({ slug, episodeSlug }: { slug: string; e
 
       {/* Episodes & Related Content */}
       <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* Episodes List & Servers - Extracted to Client Component */}
-        {movie.type === 'series' && movie.episodes && movie.episodes.length > 0 && (
+        {/* Episodes & Server List - show for ALL movies that have episodes */}
+        {servers.length > 0 && (
           <WatchEpisodeList 
-             episodesGroups={movie.episodes} 
+             episodesGroups={servers} 
              movieSlug={movie.slug} 
-             currentEpisodeSlug={episodeSlug || currentEpisode?.slug || ''} 
+             currentEpisodeSlug={episodeSlug || currentEpisode?.slug || ''}
+             currentServerIndex={safeServerIdx}
+             isSingle={movie.type === 'single'}
           />
         )}
 

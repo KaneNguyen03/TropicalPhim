@@ -1,28 +1,30 @@
 'use client'
 
-import { Home, Search, Film, User } from 'lucide-react';
+import { Home, Search, Film, Tv } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { cn } from '../components/ui/utils';
+
+const navItems = [
+  { icon: Home, label: 'Trang Chủ', path: '/', matchExact: true },
+  { icon: Search, label: 'Tìm Kiếm', path: '/search', matchExact: false },
+  { icon: Film, label: 'Phim Bộ', path: '/search?type=phim-bo', matchExact: false },
+  { icon: Tv, label: 'Phim Lẻ', path: '/search?type=phim-le', matchExact: false },
+];
 
 export function MobileNav() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const navItems = [
-    { icon: Home, label: 'Trang Chủ', path: '/' },
-    { icon: Search, label: 'Tìm Kiếm', path: '/search' },
-    { icon: Film, label: 'Phim Bộ', path: '/search?type=series' },
-    { icon: User, label: 'Cá Nhân', path: '/profile' },
-  ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#171717] border-t border-white/10 backdrop-blur-lg">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#171717]/95 border-t border-white/10 backdrop-blur-lg">
       <div className="grid grid-cols-4 h-16">
         {navItems.map((item) => {
-          const isActive = pathname === item.path || 
-            (item.path.includes('?') && pathname + '?' + (searchParams?.toString() || '') === item.path);
-          
+          const isActive = item.matchExact
+            ? pathname === item.path
+            : pathname.startsWith(item.path.split('?')[0]) && item.path === '/search'
+              ? pathname === '/search'
+              : pathname === item.path.split('?')[0];
+
           return (
             <Link
               key={item.path}
@@ -30,8 +32,8 @@ export function MobileNav() {
               prefetch={true}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 transition-colors',
-                isActive 
-                  ? 'text-[#CCFF00]' 
+                isActive
+                  ? 'text-[#CCFF00]'
                   : 'text-white/60 hover:text-white'
               )}
             >

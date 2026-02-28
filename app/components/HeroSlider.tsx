@@ -1,12 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Play, Info } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import type { Movie } from '../data/movies';
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim();
+}
 
 interface HeroSliderProps {
   movies: Movie[];
@@ -16,9 +20,9 @@ export function HeroSlider({ movies }: HeroSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % movies.length);
-  };
+  }, [movies.length]);
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
@@ -34,12 +38,10 @@ export function HeroSlider({ movies }: HeroSliderProps) {
     
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
-  }, [isAutoPlaying, currentIndex]);
-
-  const currentMovie = movies[currentIndex];
+  }, [isAutoPlaying, nextSlide]);
 
   return (
-    <div className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden bg-[#0A0A0A]">
+    <div className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden bg-[#0A0A0A]" suppressHydrationWarning>
       {/* Slides */}
       {movies.map((movie, index) => (
         <div
@@ -77,7 +79,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
                 </Badge>
                 {movie.type === 'series' && (
                   <Badge className="bg-white/20 text-white border-none text-sm px-3 py-1">
-                    {movie.episode_total} Tập
+                    {movie.episode_total} {String(movie.episode_total).toLowerCase().includes('tập') ? '' : 'Tập'}
                   </Badge>
                 )}
               </div>
@@ -94,7 +96,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
 
               {/* Description */}
               <p className="text-base md:text-lg text-white/80 line-clamp-3 max-w-xl">
-                {movie.description}
+                {stripHtml(movie.description)}
               </p>
 
               {/* Meta Info */}

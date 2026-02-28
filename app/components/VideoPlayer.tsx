@@ -77,7 +77,6 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl }: VideoPl
             hls.loadSource(episode.link_m3u8 as string);
             hls.attachMedia(video);
             
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             hls.on(Hls.Events.MANIFEST_PARSED, function() {
               restoreProgress(video);
             });

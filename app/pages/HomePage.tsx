@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { HeroSlider } from '../components/HeroSlider';
 import { MovieCard } from '../components/MovieCard';
 import { ChevronRight } from 'lucide-react';
@@ -25,9 +26,13 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <>
       {/* Hero Slider */}
-      <HeroSlider movies={featuredMovies} />
+      <Suspense fallback={
+        <div className="relative w-full h-[70vh] md:h-[80vh] bg-[#0A0A0A] animate-pulse" />
+      }>
+        <HeroSlider movies={featuredMovies} />
+      </Suspense>
 
       {/* Content Sections */}
       <div className="container mx-auto px-4 lg:px-8 py-12 space-y-12">
@@ -60,6 +65,6 @@ export default async function HomePage() {
         ))}
 
       </div>
-    </div>
+    </>
   );
 }

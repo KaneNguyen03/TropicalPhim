@@ -1,23 +1,29 @@
 import Link from 'next/link';
-import { Search, User, Menu } from 'lucide-react';
+import { Menu, ChevronDown, Film, Globe, List } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Sheet, SheetContent, SheetTrigger } from '../components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '../components/ui/sheet';
+import { getCategories, getCountries } from '../services/ophim';
+import { SearchBar } from '../components/SearchBar';
 
-export function Header() {
+const danhSachLinks = [
+  { label: 'Phim Lẻ', href: '/search?type=phim-le' },
+  { label: 'Phim Bộ', href: '/search?type=phim-bo' },
+  { label: 'Hoạt Hình', href: '/search?type=hoat-hinh' },
+  { label: 'Phim Mới Cập Nhật', href: '/search?type=phim-moi-cap-nhat' },
+  { label: 'TV Shows', href: '/search?type=tv-shows' },
+];
 
-  const navLinks = [
-    { href: '/', label: 'Trang Chủ' },
-    { href: '/search?category=phim-le', label: 'Phim Lẻ' },
-    { href: '/search?category=phim-bo', label: 'Phim Bộ' },
-    { href: '/search?category=hoat-hinh', label: 'Hoạt Hình' },
-  ];
+export async function Header() {
+  const [categories, countries] = await Promise.all([
+    getCategories(),
+    getCountries(),
+  ]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A0A0A]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0A0A0A]/80">
       <div className="container flex h-16 items-center justify-between px-4 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2 shrink-0">
           <div className="text-2xl font-bold">
             <span className="text-[#CCFF00]">Tropical</span>
             <span className="text-white">Phim</span>
@@ -25,33 +31,88 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm text-white/80 hover:text-[#CCFF00] transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav className="hidden md:flex items-center space-x-1">
+          <Link
+            href="/"
+            className="px-3 py-2 text-sm text-white/80 hover:text-[#CCFF00] transition-colors rounded-md hover:bg-white/5"
+          >
+            Trang Chủ
+          </Link>
+
+          {/* Thể Loại Dropdown */}
+          <div className="group relative">
+            <button className="flex items-center gap-1 px-3 py-2 text-sm text-white/80 hover:text-[#CCFF00] transition-colors rounded-md hover:bg-white/5">
+              <Film className="h-4 w-4" />
+              Thể Loại
+              <ChevronDown className="h-3 w-3 transition-transform group-hover:rotate-180" />
+            </button>
+            <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="bg-[#171717] border border-white/10 rounded-xl shadow-2xl shadow-black/50 p-3 w-72 grid grid-cols-2 gap-1">
+                {categories.slice(0, 24).map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/search?category=${cat.slug}`}
+                    className="text-sm text-white/70 hover:text-[#CCFF00] hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors truncate"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quốc Gia Dropdown */}
+          <div className="group relative">
+            <button className="flex items-center gap-1 px-3 py-2 text-sm text-white/80 hover:text-[#CCFF00] transition-colors rounded-md hover:bg-white/5">
+              <Globe className="h-4 w-4" />
+              Quốc Gia
+              <ChevronDown className="h-3 w-3 transition-transform group-hover:rotate-180" />
+            </button>
+            <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="bg-[#171717] border border-white/10 rounded-xl shadow-2xl shadow-black/50 p-3 w-64 grid grid-cols-2 gap-1">
+                {countries.slice(0, 20).map((country) => (
+                  <Link
+                    key={country.id}
+                    href={`/search?country=${country.slug}`}
+                    className="text-sm text-white/70 hover:text-[#CCFF00] hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors truncate"
+                  >
+                    {country.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Danh Sách Dropdown */}
+          <div className="group relative">
+            <button className="flex items-center gap-1 px-3 py-2 text-sm text-white/80 hover:text-[#CCFF00] transition-colors rounded-md hover:bg-white/5">
+              <List className="h-4 w-4" />
+              Danh Sách
+              <ChevronDown className="h-3 w-3 transition-transform group-hover:rotate-180" />
+            </button>
+            <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="bg-[#171717] border border-white/10 rounded-xl shadow-2xl shadow-black/50 p-3 w-52 flex flex-col gap-1">
+                {danhSachLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm text-white/70 hover:text-[#CCFF00] hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
         </nav>
 
-        {/* Search Bar */}
-        <form action="/search" method="GET" className="hidden lg:flex items-center flex-1 max-w-md mx-8">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
-            <Input
-              name="q"
-              type="search"
-              placeholder="Tìm phim, diễn viên..."
-              className="w-full pl-10 bg-[#171717] border-white/10 text-white placeholder:text-white/50 focus:border-[#CCFF00]"
-            />
-          </div>
-        </form>
+        {/* Search Bar - Desktop */}
+        <div className="hidden lg:block flex-1 max-w-xs mx-6">
+          <SearchBar />
+        </div>
 
         {/* Right Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <Button
             asChild
             variant="ghost"
@@ -59,16 +120,8 @@ export function Header() {
             className="lg:hidden text-white hover:text-[#CCFF00]"
           >
             <Link href="/search">
-              <Search className="h-5 w-5" />
+              <Film className="h-5 w-5" />
             </Link>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-white hover:text-[#CCFF00]"
-          >
-            <User className="h-5 w-5" />
           </Button>
 
           {/* Mobile Menu */}
@@ -78,17 +131,54 @@ export function Header() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="bg-[#171717] border-white/10">
-              <nav className="flex flex-col space-y-4 mt-8">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="text-lg text-white/80 hover:text-[#CCFF00] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+            <SheetContent side="right" className="bg-[#171717] border-white/10 w-[280px] overflow-y-auto">
+              <SheetTitle className="text-white text-lg font-bold mb-6">
+                <span className="text-[#CCFF00]">Tropical</span>Phim
+              </SheetTitle>
+              <nav className="flex flex-col space-y-1">
+                <Link href="/" className="text-base text-white/80 hover:text-[#CCFF00] px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                  Trang Chủ
+                </Link>
+
+                <div className="pt-4 pb-2">
+                  <p className="text-xs text-white/40 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                    <Film className="h-3 w-3" /> Thể Loại
+                  </p>
+                  <div className="grid grid-cols-2 gap-1">
+                    {categories.slice(0, 16).map((cat) => (
+                      <Link key={cat.id} href={`/search?category=${cat.slug}`}
+                        className="text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors truncate">
+                        {cat.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 pb-2">
+                  <p className="text-xs text-white/40 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                    <Globe className="h-3 w-3" /> Quốc Gia
+                  </p>
+                  <div className="grid grid-cols-2 gap-1">
+                    {countries.slice(0, 12).map((country) => (
+                      <Link key={country.id} href={`/search?country=${country.slug}`}
+                        className="text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors truncate">
+                        {country.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <p className="text-xs text-white/40 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                    <List className="h-3 w-3" /> Danh Sách
+                  </p>
+                  {danhSachLinks.map((link) => (
+                    <Link key={link.href} href={link.href}
+                      className="block text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
               </nav>
             </SheetContent>
           </Sheet>

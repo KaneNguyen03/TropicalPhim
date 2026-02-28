@@ -21,15 +21,62 @@ interface WatchEpisodeListProps {
   episodesGroups: ServerGroup[];
   movieSlug: string;
   currentEpisodeSlug: string;
+  currentServerIndex: number;
+  isSingle?: boolean;
 }
 
-export function WatchEpisodeList({ episodesGroups, movieSlug, currentEpisodeSlug }: WatchEpisodeListProps) {
-  const defaultServer = episodesGroups[0]?.server_name || '';
-  const [selectedServerName, setSelectedServerName] = useState<string>('');
+/** Build watch URL with server index encoded */
+function buildWatchUrl(movieSlug: string, episodeSlug: string, serverIndex: number): string {
+  if (serverIndex === 0) return `/watch/${movieSlug}/${episodeSlug}`;
+  return `/watch/${movieSlug}/${episodeSlug}?sv=${serverIndex}`;
+}
 
-  const activeServerName = selectedServerName || defaultServer;
-  const currentServerGroup = episodesGroups.find(ep => ep.server_name === activeServerName) || episodesGroups[0];
+export function WatchEpisodeList({
+  episodesGroups,
+  movieSlug,
+  currentEpisodeSlug,
+  currentServerIndex,
+  isSingle = false,
+}: WatchEpisodeListProps) {
+  const [selectedServerIdx, setSelectedServerIdx] = useState<number | null>(null);
 
+  const activeIdx = selectedServerIdx ?? currentServerIndex;
+  const currentServerGroup = episodesGroups[activeIdx] ?? episodesGroups[0];
+
+  // For single movies: each server_name is a version (Vietsub / Thuyet Minh).
+  if (isSingle) {
+    return (
+      <div className="bg-[#171717] rounded-xl p-5">
+        <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+          <span className="w-1 h-4 bg-[#CCFF00] rounded-full inline-block" />
+          Chọn Phiên Bản
+        </h2>
+        <div className="flex flex-wrap gap-3">
+          {episodesGroups.map((server, srvIdx) => {
+            const firstEp = server.server_data[0];
+            if (!firstEp) return null;
+            const isActive = srvIdx === currentServerIndex;
+            return (
+              <Link
+                key={server.server_name}
+                href={buildWatchUrl(movieSlug, firstEp.slug, srvIdx)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all border ${
+                  isActive
+                    ? 'bg-[#CCFF00] text-[#0A0A0A] border-[#CCFF00] shadow-[0_0_15px_rgba(204,255,0,0.3)]'
+                    : 'bg-[#0A0A0A] text-white border-white/20 hover:border-[#CCFF00]/50 hover:text-[#CCFF00]'
+                }`}
+              >
+                {isActive && <span className="w-2 h-2 rounded-full bg-[#0A0A0A] animate-pulse" />}
+                {server.server_name}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // Series: show server switcher + episode grid
   return (
     <div className="bg-[#171717] rounded-lg p-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -40,13 +87,13 @@ export function WatchEpisodeList({ episodesGroups, movieSlug, currentEpisodeSlug
         {/* Server Selection */}
         {episodesGroups.length > 1 && (
           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
-            {episodesGroups.map(server => (
+            {episodesGroups.map((server, srvIdx) => (
               <Button
                 key={server.server_name}
-                variant={activeServerName === server.server_name ? 'default' : 'outline'}
-                onClick={() => setSelectedServerName(server.server_name)}
+                variant={activeIdx === srvIdx ? 'default' : 'outline'}
+                onClick={() => setSelectedServerIdx(srvIdx)}
                 className={`min-w-fit rounded-full ${
-                  activeServerName === server.server_name
+                  activeIdx === srvIdx
                     ? 'bg-[#CCFF00] text-[#0A0A0A] hover:bg-[#CCFF00]/90 border-0'
                     : 'bg-transparent text-white border-white/20 hover:bg-white/10'
                 }`}
@@ -59,22 +106,25 @@ export function WatchEpisodeList({ episodesGroups, movieSlug, currentEpisodeSlug
       </div>
 
       <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">
-        {currentServerGroup?.server_data.map((episode) => (
-          <Button
-            key={episode.slug}
-            asChild
-            variant="outline"
-            className={`h-12 transition-colors ${
-              episode.slug === currentEpisodeSlug
-                ? 'bg-[#CCFF00] text-[#0A0A0A] border-[#CCFF00] hover:bg-[#CCFF00]/90 shadow-[0_0_10px_rgba(204,255,0,0.3)]'
-                : 'border-white/20 bg-[#0A0A0A] hover:bg-white/10 text-white'
-            }`}
-          >
-            <Link href={`/watch/${movieSlug}/${episode.slug}`}>
-              {episode.name}
-            </Link>
-          </Button>
-        ))}
+        {currentServerGroup?.server_data.map((episode) => {
+          const isCurrentEp = episode.slug === currentEpisodeSlug && activeIdx === currentServerIndex;
+          return (
+            <Button
+              key={`${activeIdx}-${episode.slug}`}
+              asChild
+              variant="outline"
+              className={`h-12 transition-colors ${
+                isCurrentEp
+                  ? 'bg-[#CCFF00] text-[#0A0A0A] border-[#CCFF00] hover:bg-[#CCFF00]/90 shadow-[0_0_10px_rgba(204,255,0,0.3)]'
+                  : 'border-white/20 bg-[#0A0A0A] hover:bg-white/10 text-white'
+              }`}
+            >
+              <Link href={buildWatchUrl(movieSlug, episode.slug, activeIdx)}>
+                {episode.name}
+              </Link>
+            </Button>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,130 +1,249 @@
-import { Search as SearchIcon } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import Link from 'next/link';
-import { Input } from '../components/ui/input';
 import { MovieCard } from '../components/MovieCard';
 import { FilterSidebar } from '../components/FilterSidebar';
-import { allMovies } from '../data/movies';
+import { searchMovies, getCategories, getCountries } from '../services/ophim';
 
-export default function SearchPage({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined } }) {
-  const params = searchParams || {};
-  const queryFromUrl = typeof params.q === 'string' ? params.q : '';
-  const selectedCategories = Array.isArray(params.category) 
-    ? params.category 
-    : typeof params.category === 'string' ? [params.category] : [];
-  
-  const selectedCountries = Array.isArray(params.country) 
-    ? params.country 
-    : typeof params.country === 'string' ? [params.country] : [];
+interface SearchPageProps {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
 
-  const selectedYears = Array.isArray(params.year) 
-    ? params.year.map(Number) 
-    : typeof params.year === 'string' ? [Number(params.year)] : [];
+function getString(v: string | string[] | undefined): string | undefined {
+  return typeof v === 'string' ? v : Array.isArray(v) ? v[0] : undefined;
+}
 
-  const selectedQualities = Array.isArray(params.quality) 
-    ? params.quality 
-    : typeof params.quality === 'string' ? [params.quality] : [];
+function buildPageUrl(
+  current: { [key: string]: string | string[] | undefined },
+  overrides: Record<string, string | undefined>
+): string {
+  const merged = Object.fromEntries(
+    Object.entries({ ...current, ...overrides })
+      .filter(([, v]) => v !== undefined && v !== null && v !== '')
+      .map(([k, v]) => [k, String(v)])
+  );
+  return `/search?${new URLSearchParams(merged).toString()}`;
+}
 
-  const filteredMovies = allMovies.filter(movie => {
-    // Search query
-    if (queryFromUrl) {
-      const query = queryFromUrl.toLowerCase();
-      const matchesName = movie.name.toLowerCase().includes(query);
-      const matchesOriginName = movie.origin_name.toLowerCase().includes(query);
-      const matchesDescription = movie.description.toLowerCase().includes(query);
-      if (!matchesName && !matchesOriginName && !matchesDescription) {
-        return false;
-      }
-    }
+export default async function SearchPage({ searchParams = {} }: SearchPageProps) {
+  const keyword = getString(searchParams.q);
+  const category = getString(searchParams.category);
+  const country = getString(searchParams.country);
+  const type = getString(searchParams.type);
+  const year = getString(searchParams.year);
+  const quality = getString(searchParams.quality);
+  const page = getString(searchParams.page);
 
-    // Categories
-    if (selectedCategories.length > 0) {
-      const hasCategory = movie.category.some(cat => 
-        selectedCategories.includes(cat.slug)
-      );
-      if (!hasCategory) return false;
-    }
+  const [result, categories, countries] = await Promise.all([
+    searchMovies({ keyword, type, category, country, year, page }),
+    getCategories(),
+    getCountries(),
+  ]);
 
-    // Countries
-    if (selectedCountries.length > 0) {
-      const hasCountry = movie.country.some(country => 
-        selectedCountries.includes(country.slug)
-      );
-      if (!hasCountry) return false;
-    }
+  const { movies: allMovies, pagination, titlePage: apiTitle } = result;
 
-    // Years
-    if (selectedYears.length > 0) {
-      if (!selectedYears.includes(movie.year)) return false;
-    }
+  // Client-side quality filter (Ophim API doesn't support quality param consistently)
+  const movies = quality
+    ? allMovies.filter((m) => m.quality === quality)
+    : allMovies;
 
-    // Qualities
-    if (selectedQualities.length > 0) {
-      if (!selectedQualities.includes(movie.quality)) return false;
-    }
+  // Build a human-readable title
+  const pageTitle = apiTitle ||
+    (keyword
+      ? `Kết quả cho "${keyword}"`
+      : category
+      ? `Thể loại: ${categories.find((c) => c.slug === category)?.name ?? category}`
+      : country
+      ? `Quốc gia: ${countries.find((c) => c.slug === country)?.name ?? country}`
+      : type
+      ? `${type.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}`
+      : year
+      ? `Phim năm ${year}`
+      : 'Phim Mới Cập Nhật');
 
-    return true;
-  });
+  // Build active filters list for the chips bar
+  const activeFilters: { label: string; key: string }[] = [
+    ...(keyword ? [{ label: `🔍 "${keyword}"`, key: 'q' }] : []),
+    ...(category ? [{ label: `🎬 ${categories.find((c) => c.slug === category)?.name ?? category}`, key: 'category' }] : []),
+    ...(country ? [{ label: `🌐 ${countries.find((c) => c.slug === country)?.name ?? country}`, key: 'country' }] : []),
+    ...(type ? [{ label: `📋 ${type.replace(/-/g, ' ')}`, key: 'type' }] : []),
+    ...(year ? [{ label: `📅 ${year}`, key: 'year' }] : []),
+    ...(quality ? [{ label: `✨ ${quality}`, key: 'quality' }] : []),
+  ];
+
+  const currentPage = pagination.currentPage;
+  const totalPages = pagination.totalPages;
+
+  const prevPageUrl = currentPage > 1
+    ? buildPageUrl(searchParams, { page: String(currentPage - 1) })
+    : null;
+  const nextPageUrl = currentPage < totalPages
+    ? buildPageUrl(searchParams, { page: String(currentPage + 1) })
+    : null;
 
   return (
     <div className="min-h-screen bg-[#0A0A0A]">
       <div className="flex">
-        {/* Filter Sidebar */}
-        <FilterSidebar />
+        {/* Filter Sidebar – receives data from server, passes to client component */}
+        <FilterSidebar
+          categories={categories}
+          countries={countries}
+          currentFilters={{ category, country, year, quality, type, q: keyword }}
+        />
 
         {/* Main Content */}
-        <div className="flex-1 container mx-auto px-4 lg:px-8 py-8">
-          {/* Search Bar */}
-          <div className="mb-8">
-            <form method="GET" action="/search" className="relative max-w-2xl text-left">
-              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
-              <Input
-                name="q"
-                type="search"
-                defaultValue={queryFromUrl}
-                placeholder="Tìm kiếm phim, diễn viên, đạo diễn..."
-                className="w-full pl-12 h-14 text-lg bg-[#171717] border-white/10 text-white placeholder:text-white/50 focus:border-[#CCFF00]"
-              />
-              {selectedCategories.map(c => <input key={c} type="hidden" name="category" value={c} />)}
-              {selectedCountries.map(c => <input key={c} type="hidden" name="country" value={c} />)}
-              {selectedYears.map(c => <input key={c} type="hidden" name="year" value={c} />)}
-              {selectedQualities.map(c => <input key={c} type="hidden" name="quality" value={c} />)}
-            </form>
+        <div className="flex-1 min-w-0 px-4 lg:px-6 py-8">
+
+          {/* Page Title + Stats */}
+          <div className="mb-5">
+            <h1 className="text-2xl md:text-3xl font-bold text-white">{pageTitle}</h1>
+            <div className="flex items-center gap-3 mt-1 text-sm text-white/50">
+              <span>{pagination.totalItems.toLocaleString()} phim</span>
+              {totalPages > 1 && (
+                <>
+                  <span>•</span>
+                  <span>Trang {currentPage}/{totalPages}</span>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Results Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              {queryFromUrl ? `Kết quả cho "${queryFromUrl}"` : 'Tất Cả Phim'}
-            </h1>
-            <p className="text-white/60">
-              Tìm thấy {filteredMovies.length} kết quả
-            </p>
-          </div>
+          {/* Active Filter Chips */}
+          {activeFilters.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <SlidersHorizontal className="h-4 w-4 text-white/40 shrink-0" />
+              {activeFilters.map((f) => (
+                <Link
+                  key={f.key}
+                  href={buildPageUrl(searchParams, { [f.key]: undefined, page: undefined })}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#CCFF00]/10 border border-[#CCFF00]/30 text-[#CCFF00] text-xs font-medium hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400 transition-colors group"
+                >
+                  {f.label}
+                  <X className="h-3 w-3 opacity-60 group-hover:opacity-100" />
+                </Link>
+              ))}
+              {activeFilters.length > 1 && (
+                <Link
+                  href="/search"
+                  className="text-xs text-white/40 hover:text-white/70 underline ml-1"
+                >
+                  Xóa tất cả
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* No filters yet – show category shortcuts */}
+          {activeFilters.length === 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {[
+                { label: '🎬 Phim Lẻ', href: '/search?type=phim-le' },
+                { label: '📺 Phim Bộ', href: '/search?type=phim-bo' },
+                { label: '🎨 Hoạt Hình', href: '/search?type=hoat-hinh' },
+              ].map((s) => (
+                <Link
+                  key={s.href}
+                  href={s.href}
+                  className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-[#CCFF00]/10 hover:border-[#CCFF00]/30 hover:text-[#CCFF00] transition-colors"
+                >
+                  {s.label}
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Movies Grid */}
-          {filteredMovies.length > 0 ? (
+          {movies.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {filteredMovies.map((movie) => (
+              {movies.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-20">
+            <div className="text-center py-24">
               <div className="text-6xl mb-4">🔍</div>
               <h3 className="text-xl font-semibold text-white mb-2">
                 Không tìm thấy kết quả
               </h3>
               <p className="text-white/60 mb-6">
-                Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc
+                Hãy thử từ khóa khác hoặc bỏ bớt bộ lọc
               </p>
               <Link
                 href="/search"
-                className="text-[#CCFF00] hover:text-[#CCFF00]/80 underline"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#CCFF00] text-[#0A0A0A] font-semibold hover:bg-[#CCFF00]/90 transition-colors"
               >
-                Xóa tất cả bộ lọc
+                <X className="h-4 w-4" /> Xóa bộ lọc
               </Link>
             </div>
           )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (() => {
+            // Build page numbers to show: first, last, current ±2, with ellipsis
+            const pageNumbers: (number | 'ellipsis')[] = [];
+            const delta = 2;
+            const rangeStart = Math.max(2, currentPage - delta);
+            const rangeEnd = Math.min(totalPages - 1, currentPage + delta);
+
+            pageNumbers.push(1);
+            if (rangeStart > 2) pageNumbers.push('ellipsis');
+            for (let i = rangeStart; i <= rangeEnd; i++) pageNumbers.push(i);
+            if (rangeEnd < totalPages - 1) pageNumbers.push('ellipsis');
+            if (totalPages > 1) pageNumbers.push(totalPages);
+
+            return (
+              <div className="mt-12 flex flex-wrap justify-center items-center gap-2">
+                {/* Prev */}
+                {prevPageUrl ? (
+                  <Link
+                    href={prevPageUrl}
+                    className="px-4 py-2 rounded-lg bg-[#171717] text-white border border-white/10 hover:border-[#CCFF00]/50 hover:text-[#CCFF00] transition-colors text-sm font-medium"
+                  >
+                    ←
+                  </Link>
+                ) : (
+                  <span className="px-4 py-2 rounded-lg bg-[#0D0D0D] text-white/20 border border-white/5 text-sm cursor-not-allowed">
+                    ←
+                  </span>
+                )}
+
+                {/* Page Numbers */}
+                {pageNumbers.map((p, idx) =>
+                  p === 'ellipsis' ? (
+                    <span key={`e${idx}`} className="px-2 text-white/30 text-sm">…</span>
+                  ) : p === currentPage ? (
+                    <span
+                      key={p}
+                      className="px-4 py-2 rounded-lg bg-[#CCFF00] text-[#0A0A0A] font-bold text-sm shadow-[0_0_12px_rgba(204,255,0,0.3)]"
+                    >
+                      {p}
+                    </span>
+                  ) : (
+                    <Link
+                      key={p}
+                      href={buildPageUrl(searchParams, { page: String(p) })}
+                      className="px-4 py-2 rounded-lg bg-[#171717] text-white/70 border border-white/10 hover:border-[#CCFF00]/40 hover:text-[#CCFF00] transition-colors text-sm"
+                    >
+                      {p}
+                    </Link>
+                  )
+                )}
+
+                {/* Next */}
+                {nextPageUrl ? (
+                  <Link
+                    href={nextPageUrl}
+                    className="px-4 py-2 rounded-lg bg-[#CCFF00] text-[#0A0A0A] font-bold hover:bg-[#CCFF00]/90 transition-colors text-sm"
+                  >
+                    →
+                  </Link>
+                ) : (
+                  <span className="px-4 py-2 rounded-lg bg-[#171717]/50 text-white/20 border border-white/5 text-sm cursor-not-allowed">
+                    →
+                  </span>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

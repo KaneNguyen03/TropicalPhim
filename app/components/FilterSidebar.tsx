@@ -1,203 +1,253 @@
-'use client'
+'use client';
 
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, ChevronDown } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '../components/ui/button';
-import { Checkbox } from '../components/ui/checkbox';
-import { Label } from '../components/ui/label';
-import { ScrollArea } from '../components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../components/ui/sheet';
-import { categories, countries } from '../data/movies';
+import { ScrollArea } from '../components/ui/scroll-area';
+import { cn } from '../components/ui/utils';
+import { useState } from 'react';
+
+interface FilterItem {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+/** Server-provided current filter state — no useSearchParams needed */
+interface CurrentFilters {
+  category?: string;
+  country?: string;
+  year?: string;
+  quality?: string;
+  type?: string;
+  q?: string;
+}
+
+interface FilterSidebarProps {
+  categories: FilterItem[];
+  countries: FilterItem[];
+  currentFilters?: CurrentFilters;
+}
 
 const qualities = ['4K', 'FHD', 'HD', 'CAM'];
-const years = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
+const years = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018];
+const types = [
+  { label: 'Phim Lẻ', slug: 'phim-le' },
+  { label: 'Phim Bộ', slug: 'phim-bo' },
+  { label: 'Hoạt Hình', slug: 'hoat-hinh' },
+  { label: 'TV Shows', slug: 'tv-shows' },
+];
 
-export function FilterSidebar() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
+/** Build a URL combining current filters + toggling one key */
+function buildFilterUrl(
+  current: CurrentFilters,
+  key: string,
+  value: string
+): string {
+  const params = new URLSearchParams();
 
-  const selectedCategories = searchParams?.getAll('category') || [];
-  const selectedCountries = searchParams?.getAll('country') || [];
-  const selectedYears = searchParams?.getAll('year').map(Number) || [];
-  const selectedQualities = searchParams?.getAll('quality') || [];
+  // Carry over keyword if present
+  if (current.q) params.set('q', current.q);
 
-  const updateUrl = (key: string, values: string[] | number[]) => {
-    const params = new URLSearchParams(searchParams?.toString());
-    params.delete(key);
-    values.forEach(v => params.append(key, v.toString()));
-    router.push(`${pathname}?${params.toString()}`);
+  const merged: Record<string, string> = {
+    ...(current.category ? { category: current.category } : {}),
+    ...(current.country ? { country: current.country } : {}),
+    ...(current.year ? { year: current.year } : {}),
+    ...(current.quality ? { quality: current.quality } : {}),
+    ...(current.type ? { type: current.type } : {}),
   };
 
-  const onReset = () => {
-    const params = new URLSearchParams(searchParams?.toString());
-    params.delete('category');
-    params.delete('country');
-    params.delete('year');
-    params.delete('quality');
-    router.push(`${pathname}?${params.toString()}`);
-  };
-  const toggleCategory = (categorySlug: string) => {
-    if (selectedCategories.includes(categorySlug)) {
-      updateUrl('category', selectedCategories.filter(c => c !== categorySlug));
-    } else {
-      updateUrl('category', [...selectedCategories, categorySlug]);
-    }
-  };
+  // Toggle: if same value → remove, else set
+  if (merged[key] === value) {
+    delete merged[key];
+  } else {
+    merged[key] = value;
+    // Clear conflicting params
+    if (key === 'type') { delete merged.category; delete merged.country; }
+    if (key === 'category') { delete merged.type; }
+    if (key === 'country') { delete merged.type; }
+  }
 
-  const toggleCountry = (countrySlug: string) => {
-    if (selectedCountries.includes(countrySlug)) {
-      updateUrl('country', selectedCountries.filter(c => c !== countrySlug));
-    } else {
-      updateUrl('country', [...selectedCountries, countrySlug]);
-    }
-  };
+  Object.entries(merged).forEach(([k, v]) => params.set(k, v));
+  const qs = params.toString();
+  return qs ? `/search?${qs}` : '/search';
+}
 
-  const toggleYear = (year: number) => {
-    if (selectedYears.includes(year)) {
-      updateUrl('year', selectedYears.filter(y => y !== year));
-    } else {
-      updateUrl('year', [...selectedYears, year]);
-    }
-  };
+function buildResetUrl(current: CurrentFilters): string {
+  if (current.q) return `/search?q=${encodeURIComponent(current.q)}`;
+  return '/search';
+}
 
-  const toggleQuality = (quality: string) => {
-    if (selectedQualities.includes(quality)) {
-      updateUrl('quality', selectedQualities.filter(q => q !== quality));
-    } else {
-      updateUrl('quality', [...selectedQualities, quality]);
-    }
-  };
+function FilterChipLink({
+  label,
+  active,
+  href,
+}: {
+  label: string;
+  active: boolean;
+  href: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'px-3 py-1.5 rounded-lg text-xs font-medium transition-all border inline-block',
+        active
+          ? 'bg-[#CCFF00] text-[#0A0A0A] border-[#CCFF00] shadow-[0_0_8px_rgba(204,255,0,0.3)]'
+          : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/30'
+      )}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function CollapsibleSection({
+  title,
+  children,
+  defaultOpen = true,
+}: {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-white/10 pb-4">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full text-left mb-3"
+      >
+        <h3 className="font-semibold text-white text-sm">{title}</h3>
+        <ChevronDown className={cn('h-4 w-4 text-white/40 transition-transform', isOpen && 'rotate-180')} />
+      </button>
+      {isOpen && children}
+    </div>
+  );
+}
+
+export function FilterSidebar({ categories, countries, currentFilters = {} }: FilterSidebarProps) {
+  const selectedCategory = currentFilters.category ?? '';
+  const selectedCountry = currentFilters.country ?? '';
+  const selectedYear = currentFilters.year ?? '';
+  const selectedQuality = currentFilters.quality ?? '';
+  const selectedType = currentFilters.type ?? '';
+
+  const hasActiveFilters = selectedCategory || selectedCountry || selectedYear || selectedQuality || selectedType;
 
   const renderFilterContent = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Reset Button */}
-      <Button
-        onClick={onReset}
-        variant="outline"
-        className="w-full border-white/20 text-white hover:bg-white/10"
-      >
-        <X className="mr-2 h-4 w-4" />
-        Xóa Bộ Lọc
-      </Button>
+      {hasActiveFilters && (
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="w-full text-white/60 hover:text-[#CCFF00] hover:bg-[#CCFF00]/10 transition-all duration-200"
+        >
+          <Link href={buildResetUrl(currentFilters)}>
+            <X className="mr-2 h-3.5 w-3.5" />
+            Xóa bộ lọc
+          </Link>
+        </Button>
+      )}
 
-      {/* Quality */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-white">Chất Lượng</h3>
-        <div className="space-y-2">
-          {qualities.map((quality) => (
-            <div key={quality} className="flex items-center space-x-2">
-              <Checkbox
-                id={`quality-${quality}`}
-                checked={selectedQualities.includes(quality)}
-                onCheckedChange={() => toggleQuality(quality)}
-                className="border-white/30 data-[state=checked]:bg-[#CCFF00] data-[state=checked]:border-[#CCFF00]"
-              />
-              <Label
-                htmlFor={`quality-${quality}`}
-                className="text-sm text-white/80 cursor-pointer"
-              >
-                {quality}
-              </Label>
-            </div>
+      {/* Loại Phim */}
+      <CollapsibleSection title="Loại Phim">
+        <div className="flex flex-wrap gap-1.5">
+          {types.map((t) => (
+            <FilterChipLink
+              key={t.slug}
+              label={t.label}
+              active={selectedType === t.slug}
+              href={buildFilterUrl(currentFilters, 'type', t.slug)}
+            />
           ))}
         </div>
-      </div>
+      </CollapsibleSection>
 
-      {/* Categories */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-white">Thể Loại</h3>
-        <ScrollArea className="h-[200px]">
-          <div className="space-y-2 pr-4">
-            {categories.map((category) => (
-              <div key={category.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`category-${category.id}`}
-                  checked={selectedCategories.includes(category.slug)}
-                  onCheckedChange={() => toggleCategory(category.slug)}
-                  className="border-white/30 data-[state=checked]:bg-[#CCFF00] data-[state=checked]:border-[#CCFF00]"
-                />
-                <Label
-                  htmlFor={`category-${category.id}`}
-                  className="text-sm text-white/80 cursor-pointer"
-                >
-                  {category.name}
-                </Label>
-              </div>
+      {/* Chất Lượng */}
+      <CollapsibleSection title="Chất Lượng">
+        <div className="flex flex-wrap gap-1.5">
+          {qualities.map((q) => (
+            <FilterChipLink
+              key={q}
+              label={q}
+              active={selectedQuality === q}
+              href={buildFilterUrl(currentFilters, 'quality', q)}
+            />
+          ))}
+        </div>
+      </CollapsibleSection>
+
+      {/* Thể Loại */}
+      <CollapsibleSection title="Thể Loại" defaultOpen={false}>
+        <ScrollArea className="h-[220px] pr-1">
+          <div className="flex flex-wrap gap-1.5">
+            {categories.map((cat) => (
+              <FilterChipLink
+                key={cat.id}
+                label={cat.name}
+                active={selectedCategory === cat.slug}
+                href={buildFilterUrl(currentFilters, 'category', cat.slug)}
+              />
             ))}
           </div>
         </ScrollArea>
-      </div>
+      </CollapsibleSection>
 
-      {/* Countries */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-white">Quốc Gia</h3>
-        <ScrollArea className="h-[150px]">
-          <div className="space-y-2 pr-4">
+      {/* Quốc Gia */}
+      <CollapsibleSection title="Quốc Gia" defaultOpen={false}>
+        <ScrollArea className="h-[220px] pr-1">
+          <div className="flex flex-wrap gap-1.5">
             {countries.map((country) => (
-              <div key={country.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`country-${country.id}`}
-                  checked={selectedCountries.includes(country.slug)}
-                  onCheckedChange={() => toggleCountry(country.slug)}
-                  className="border-white/30 data-[state=checked]:bg-[#CCFF00] data-[state=checked]:border-[#CCFF00]"
-                />
-                <Label
-                  htmlFor={`country-${country.id}`}
-                  className="text-sm text-white/80 cursor-pointer"
-                >
-                  {country.name}
-                </Label>
-              </div>
+              <FilterChipLink
+                key={country.id}
+                label={country.name}
+                active={selectedCountry === country.slug}
+                href={buildFilterUrl(currentFilters, 'country', country.slug)}
+              />
             ))}
           </div>
         </ScrollArea>
-      </div>
+      </CollapsibleSection>
 
-      {/* Years */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-white">Năm</h3>
-        <div className="grid grid-cols-2 gap-2">
+      {/* Năm */}
+      <CollapsibleSection title="Năm Phát Hành" defaultOpen={false}>
+        <div className="flex flex-wrap gap-1.5">
           {years.map((year) => (
-            <div key={year} className="flex items-center space-x-2">
-              <Checkbox
-                id={`year-${year}`}
-                checked={selectedYears.includes(year)}
-                onCheckedChange={() => toggleYear(year)}
-                className="border-white/30 data-[state=checked]:bg-[#CCFF00] data-[state=checked]:border-[#CCFF00]"
-              />
-              <Label
-                htmlFor={`year-${year}`}
-                className="text-sm text-white/80 cursor-pointer"
-              >
-                {year}
-              </Label>
-            </div>
+            <FilterChipLink
+              key={year}
+              label={String(year)}
+              active={selectedYear === String(year)}
+              href={buildFilterUrl(currentFilters, 'year', String(year))}
+            />
           ))}
         </div>
-      </div>
+      </CollapsibleSection>
     </div>
   );
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block w-64 bg-[#171717] border-r border-white/10 p-6">
-        <div className="sticky top-20">
-          <div className="flex items-center gap-2 mb-6">
-            <Filter className="h-5 w-5 text-[#CCFF00]" />
+      <aside className="hidden lg:block w-64 shrink-0 bg-[#0D0D0D] border-r border-white/10">
+        <div className="sticky top-16 p-5 h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="flex items-center gap-2 mb-5">
+            <Filter className="h-4 w-4 text-[#CCFF00]" />
             <h2 className="font-bold text-white">Bộ Lọc</h2>
           </div>
           {renderFilterContent()}
         </div>
-      </div>
+      </aside>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Filter FAB */}
       <Sheet>
         <SheetTrigger asChild className="lg:hidden">
           <Button
             variant="outline"
-            className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 shadow-lg bg-[#CCFF00] hover:bg-[#CCFF00]/90 border-none"
+            className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 shadow-lg bg-[#CCFF00] hover:bg-[#CCFF00]/90 border-none p-0"
           >
             <Filter className="h-6 w-6 text-[#0A0A0A]" />
           </Button>
@@ -205,11 +255,11 @@ export function FilterSidebar() {
         <SheetContent side="right" className="bg-[#171717] border-white/10 w-[300px]">
           <SheetHeader>
             <SheetTitle className="text-white flex items-center gap-2">
-              <Filter className="h-5 w-5 text-[#CCFF00]" />
+              <Filter className="h-4 w-4 text-[#CCFF00]" />
               Bộ Lọc
             </SheetTitle>
           </SheetHeader>
-          <div className="mt-6">
+          <div className="mt-6 overflow-y-auto">
             {renderFilterContent()}
           </div>
         </SheetContent>

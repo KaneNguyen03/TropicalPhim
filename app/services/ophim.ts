@@ -66,6 +66,142 @@ export function mapOphimToMovie(item: OphimItem, cdnDomain: string): Movie {
   };
 }
 
+export async function getCategories(): Promise<{ id: string; name: string; slug: string }[]> {
+  try {
+    const res = await fetch('https://ophim1.com/v1/api/the-loai', { next: { revalidate: 3600 } });
+    const json = await res.json();
+    return json?.data?.items?.map((cat: { _id: string; name: string; slug: string }) => ({
+      id: cat._id, name: cat.name, slug: cat.slug
+    })) || [];
+  } catch (error) {
+    console.error('API Error:', error);
+    return [];
+  }
+}
+
+export async function getCountries(): Promise<{ id: string; name: string; slug: string }[]> {
+  try {
+    const res = await fetch('https://ophim1.com/v1/api/quoc-gia', { next: { revalidate: 3600 } });
+    const json = await res.json();
+    return json?.data?.items?.map((cat: { _id: string; name: string; slug: string }) => ({
+      id: cat._id, name: cat.name, slug: cat.slug
+    })) || [];
+  } catch (error) {
+    console.error('API Error:', error);
+    return [];
+  }
+}
+
+export interface SearchPagination {
+  currentPage: number;
+  totalItems: number;
+  totalItemsPerPage: number;
+  totalPages: number;
+}
+
+export interface SearchResult {
+  movies: Movie[];
+  pagination: SearchPagination;
+  titlePage: string;
+}
+
+export async function searchMovies(params: {
+  keyword?: string;
+  type?: string;
+  category?: string;
+  country?: string;
+  year?: string;
+  quality?: string;
+  page?: string;
+}): Promise<SearchResult> {
+  const emptyResult: SearchResult = {
+    movies: [],
+    pagination: { currentPage: 1, totalItems: 0, totalItemsPerPage: 24, totalPages: 0 },
+    titlePage: '',
+  };
+  
+  // List types that use /danh-sach/:slug endpoint
+  const listTypes = ['phim-le', 'phim-bo', 'hoat-hinh', 'tv-shows', 'phim-moi-cap-nhat'];
+
+  try {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page);
+    queryParams.append('limit', '24');
+
+    let url: string;
+
+    if (params.keyword && params.keyword.length >= 2) {
+      // Full-text search endpoint
+      url = 'https://ophim1.com/v1/api/tim-kiem';
+      queryParams.append('keyword', params.keyword);
+    } else if (params.type && listTypes.includes(params.type)) {
+      // List-type browsing: phim-le, phim-bo, hoat-hinh, tv-shows
+      url = `https://ophim1.com/v1/api/danh-sach/${params.type}`;
+      if (params.country) queryParams.append('country', params.country);
+      if (params.year) queryParams.append('year', params.year);
+    } else if (params.category) {
+      // Genre/category browsing – slug is part of the path
+      url = `https://ophim1.com/v1/api/the-loai/${params.category}`;
+      if (params.country) queryParams.append('country', params.country);
+      if (params.year) queryParams.append('year', params.year);
+    } else if (params.country) {
+      // Country browsing
+      url = `https://ophim1.com/v1/api/quoc-gia/${params.country}`;
+      if (params.year) queryParams.append('year', params.year);
+    } else if (params.year) {
+      // Year browsing
+      url = 'https://ophim1.com/v1/api/nam-phat-hanh';
+      queryParams.append('year', params.year);
+    } else {
+      // Default: latest updated movies
+      url = 'https://ophim1.com/v1/api/danh-sach/phim-moi-cap-nhat';
+    }
+
+    const res = await fetch(`${url}?${queryParams.toString()}`, {
+      next: { revalidate: params.keyword ? 30 : 60 },
+    });
+    if (!res.ok) return emptyResult;
+    const json = await res.json();
+
+    if (!json?.data?.items) return emptyResult;
+
+    const cdnDomain: string =
+      (json?.data?.APP_DOMAIN_CDN_IMAGE as string | undefined) ?? 'https://img.ophim.live';
+
+    const movies = (json.data.items as OphimItem[]).map((item) =>
+      mapOphimToMovie(item, cdnDomain)
+    );
+
+    const rawPagination = json?.data?.params?.pagination;
+    const pagination: SearchPagination = rawPagination
+      ? {
+          currentPage: rawPagination.currentPage ?? 1,
+          totalItems: rawPagination.totalItems ?? movies.length,
+          totalItemsPerPage: rawPagination.totalItemsPerPage ?? 24,
+          totalPages: rawPagination.totalPages
+            ?? Math.ceil(
+                 (rawPagination.totalItems ?? movies.length) /
+                 (rawPagination.totalItemsPerPage ?? 24)
+               ),
+        }
+      : {
+          currentPage: 1,
+          totalItems: movies.length,
+          totalItemsPerPage: 24,
+          totalPages: 1,
+        };
+
+    return {
+      movies,
+      pagination,
+      titlePage: (json?.data?.titlePage as string | undefined) ?? '',
+    };
+  } catch (error) {
+    console.error('API Error:', error);
+    return emptyResult;
+  }
+}
+
 export async function getHomeMovies(): Promise<Movie[]> {
   try {
     const res = await fetch('https://ophim1.com/v1/api/home', {
