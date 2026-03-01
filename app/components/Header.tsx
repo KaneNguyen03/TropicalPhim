@@ -21,7 +21,7 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A0A0A]/95 backdrop-blur supports-backdrop-filter:bg-[#0A0A0A]/80" suppressHydrationWarning>
-      <div className="container flex h-16 items-center justify-between px-4 lg:px-8" suppressHydrationWarning>
+      <div className="container flex h-16 items-center justify-between px-4 lg:px-8 max-w-[1440px] mx-auto" suppressHydrationWarning>
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 shrink-0">
           <span className="block text-2xl font-bold">

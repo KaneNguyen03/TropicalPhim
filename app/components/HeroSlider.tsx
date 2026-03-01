@@ -57,9 +57,9 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               src={movie.thumb_url}
               alt={movie.name}
               fill
-              unoptimized
               sizes="100vw"
-              priority={index === currentIndex}
+              priority={index === 0}
+              fetchPriority={index === 0 ? 'high' : 'auto'}
               className="object-cover"
             />
             {/* Gradient Overlays */}

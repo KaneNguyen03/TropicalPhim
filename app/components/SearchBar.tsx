@@ -175,7 +175,6 @@ export function SearchBar({ placeholder = 'Tìm phim, diễn viên...' }: { plac
                     src={movie.poster_url || movie.thumb_url}
                     alt={movie.name}
                     fill
-                    unoptimized
                     sizes="40px"
                     className="object-cover"
                   />

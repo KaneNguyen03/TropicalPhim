@@ -34,7 +34,6 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md' }: Mo
           src={size === 'lg' ? movie.thumb_url : movie.poster_url}
           alt={movie.name}
           fill
-          unoptimized
           loading="lazy"
           placeholder="blur"
           blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="

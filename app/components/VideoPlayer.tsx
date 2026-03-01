@@ -188,8 +188,8 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
               src={thumbUrl} 
               alt={movieName} 
               fill
-              unoptimized
               priority
+              fetchPriority="high"
               loading="eager"
               sizes="(max-width: 768px) 100vw, 100vw"
               className="object-cover opacity-30 blur-sm brightness-50 z-0" 
@@ -207,9 +207,10 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
               src={thumbUrl} 
               alt={movieName} 
               fill
-              unoptimized
               priority
+              fetchPriority="high"
               loading="eager"
+              sizes="(max-width: 768px) 100vw, 100vw"
               className="object-cover opacity-20 blur-sm brightness-50 z-0" 
             />
             <div className="relative z-10 space-y-4 max-w-md">

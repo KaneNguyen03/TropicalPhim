@@ -91,7 +91,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Copyright */}
           <div className="mt-6 text-center text-xs text-white/30">
-            © {new Date().getFullYear()} <span className="text-[#CCFF00]/60">TropicalPhim</span>. Dự án mã nguồn mở — Không kinh doanh, không lưu trữ phim lậu.
+            © <span suppressHydrationWarning>{new Date().getFullYear()}</span> <span className="text-[#CCFF00]/60">TropicalPhim</span>. Dự án mã nguồn mở — Không kinh doanh, không lưu trữ phim lậu.
           </div>
         </div>
       </footer>
