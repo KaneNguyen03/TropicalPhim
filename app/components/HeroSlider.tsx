@@ -8,7 +8,8 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import type { Movie } from '../data/movies';
 
-function stripHtml(html: string): string {
+function stripHtml(html?: string): string {
+  if (!html) return '';
   return html.replace(/<[^>]*>/g, '').trim();
 }
 
