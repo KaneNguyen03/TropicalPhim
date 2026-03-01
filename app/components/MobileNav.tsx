@@ -4,7 +4,7 @@ import { Home, Search, Film, Tv } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '../components/ui/utils';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 const navItems = [
   { icon: Home, label: 'Trang Chủ', path: '/', matchExact: true },
@@ -18,7 +18,7 @@ function NavContent() {
   const searchParams = useSearchParams();
 
   return (
-    <div className="grid grid-cols-4 h-16">
+    <div className="grid grid-cols-4 h-16" suppressHydrationWarning>
       {navItems.map((item) => {
         let isActive = false;
         
@@ -40,13 +40,12 @@ function NavContent() {
             href={href}
             prefetch={true}
             className={cn(
-              'flex flex-col items-center justify-center gap-1 transition-colors',
+              'flex flex-col items-center justify-center gap-1 transition-colors relative',
               isActive
                 ? 'text-[#CCFF00]'
                 : 'text-white/60 hover:text-white'
             )}
-          >
-            <item.icon className={cn("h-5 w-5", isActive && "animate-pulse")} />
+          >            <item.icon className={cn("h-5 w-5", isActive && "animate-pulse")} />
             <span className="text-xs font-medium">{item.label}</span>
           </Link>
         );
@@ -56,6 +55,26 @@ function NavContent() {
 }
 
 export function MobileNav() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#171717]/95 border-t border-white/10 backdrop-blur-lg">
+        <div className="grid grid-cols-4 h-16 opacity-50">
+          <div className="h-full flex items-center justify-center"><div className="w-6 h-6 rounded-full bg-white/20 animate-pulse" /></div>
+          <div className="h-full flex items-center justify-center"><div className="w-6 h-6 rounded-full bg-white/20 animate-pulse" /></div>
+          <div className="h-full flex items-center justify-center"><div className="w-6 h-6 rounded-full bg-white/20 animate-pulse" /></div>
+          <div className="h-full flex items-center justify-center"><div className="w-6 h-6 rounded-full bg-white/20 animate-pulse" /></div>
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#171717]/95 border-t border-white/10 backdrop-blur-lg">
       <Suspense fallback={<div className="h-16 w-full animate-pulse bg-white/5" />}>

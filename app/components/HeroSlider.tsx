@@ -44,14 +44,15 @@ export function HeroSlider({ movies }: HeroSliderProps) {
     <div className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden bg-[#0A0A0A]" suppressHydrationWarning>
       {/* Slides */}
       {movies.map((movie, index) => (
-        <div
-          key={movie.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-          }`}
-        >
+        <div key={movie.id} suppressHydrationWarning>
+          <div
+            suppressHydrationWarning
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
+          >
           {/* Background Image */}
-          <div className="absolute inset-0">
+          <div className="absolute inset-0" suppressHydrationWarning>
             <Image
               src={movie.thumb_url}
               alt={movie.name}
@@ -59,7 +60,6 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               unoptimized
               sizes="100vw"
               priority={index === currentIndex}
-              loading={index === currentIndex ? "eager" : "lazy"}
               className="object-cover"
             />
             {/* Gradient Overlays */}
@@ -78,9 +78,9 @@ export function HeroSlider({ movies }: HeroSliderProps) {
                 <Badge className="bg-[#FF6B35] text-white border-none text-sm px-3 py-1">
                   {movie.year}
                 </Badge>
-                {movie.type === 'series' && (
+                {movie.type === 'series' && movie.episode_total && (
                   <Badge className="bg-white/20 text-white border-none text-sm px-3 py-1">
-                    {movie.episode_total} {String(movie.episode_total).toLowerCase().includes('tập') ? '' : 'Tập'}
+                    {String(movie.episode_total).toLowerCase().includes('tập') ? movie.episode_total : `${movie.episode_total} Tập`}
                   </Badge>
                 )}
               </div>
@@ -103,10 +103,18 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               {/* Meta Info */}
               <div className="flex items-center gap-4 text-sm text-white/60">
                 <span>{movie.time}</span>
-                <span>•</span>
-                <span>⭐ {movie.tmdb.vote_average.toFixed(1)}</span>
-                <span>•</span>
-                <span>{movie.category.map(c => c.name).join(', ')}</span>
+                {movie.tmdb && movie.tmdb.vote_average && (
+                  <>
+                    <span>•</span>
+                    <span>⭐ {movie.tmdb.vote_average.toFixed(1)}</span>
+                  </>
+                )}
+                {movie.category && movie.category.length > 0 && (
+                  <>
+                    <span>•</span>
+                    <span>{movie.category.map(c => c.name).join(', ')}</span>
+                  </>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -135,6 +143,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               </div>
             </div>
           </div>
+        </div>
         </div>
       ))}
 

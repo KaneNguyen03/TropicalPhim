@@ -120,7 +120,14 @@ export default async function DetailPage({ slug }: { slug: string }) {
                               <BreadcrumbPage className="text-white font-medium">{item.name}</BreadcrumbPage>
                             ) : (
                               <BreadcrumbLink asChild>
-                                <Link href={item.slug.replace('/danh-sach', '/search').replace('/the-loai', '/search?category=')} className="hover:text-[#CCFF00]">
+                                <Link 
+                                  href={item.slug
+                                    .replace('/danh-sach/', '/search?type=')
+                                    .replace('/the-loai/', '/search?category=')
+                                    .replace('/quoc-gia/', '/search?country=')
+                                  } 
+                                  className="hover:text-[#CCFF00]"
+                                >
                                   {item.name}
                                 </Link>
                               </BreadcrumbLink>
