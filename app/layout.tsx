@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next"
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -56,6 +57,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
+      <head>
+        {/* Polyfill hỗ trợ TV Samsung / WebKit cũ chạy được JS hiện đại */}
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/core-js-bundle/3.35.1/minified.js" strategy="beforeInteractive" />
+      </head>
       <body suppressHydrationWarning>
         <Layout>{children}</Layout>
         <Analytics />
