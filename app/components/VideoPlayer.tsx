@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
-import { Server, MonitorPlay, AlertCircle } from 'lucide-react';
+import { Server, MonitorPlay, AlertCircle, Loader2 } from 'lucide-react';
 import { Badge } from './ui/badge';
 import Image from 'next/image';
 
@@ -24,9 +24,15 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUrl }: VideoPlayerProps) {
   const [server, setServer] = useState<'embed' | 'm3u8'>('embed');
+  const [isIframeLoading, setIsIframeLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [hlsError, setHlsError] = useState<string | null>(null);
+
+  // Reset loading state when changing server or episode
+  useEffect(() => {
+    setIsIframeLoading(true);
+  }, [server, episode?.slug]);
 
   // Auto-rotate logic for mobile
   useEffect(() => {
@@ -232,13 +238,26 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
         ) : (
           <>
             {server === 'embed' ? (
-              <iframe
-                src={episode.link_embed || undefined}
-                allow="autoplay; fullscreen"
-                allowFullScreen
-                className="w-full h-full border-0 absolute top-0 left-0 bg-black"
-                title={`${movieName} - ${episode.name}`}
-              />
+              <div className="w-full h-full absolute top-0 left-0 bg-black">
+                {isIframeLoading && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/90 text-white space-y-4">
+                    <div className="bg-[#CCFF00]/20 p-4 rounded-full">
+                      <Loader2 className="w-8 h-8 text-[#CCFF00] animate-spin" />
+                    </div>
+                    <p className="font-medium animate-pulse">Đang kết nối máy chủ Embed...</p>
+                  </div>
+                )}
+                <iframe
+                  key={`embed-${episode.slug}`}
+                  src={episode.link_embed || undefined}
+                  onLoad={() => setIsIframeLoading(false)}
+                  allow="autoplay; fullscreen"
+                  allowFullScreen
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                  className={`w-full h-full border-0 absolute top-0 left-0 z-0 transition-opacity duration-500 ${isIframeLoading ? 'opacity-0' : 'opacity-100'}`}
+                  title={`${movieName} - ${episode.name}`}
+                />
+              </div>
             ) : (
                <div className="w-full h-full absolute top-0 left-0 bg-black flex items-center justify-center">
                   {hlsError ? (
