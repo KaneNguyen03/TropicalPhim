@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Server, MonitorPlay, AlertCircle, Loader2 } from 'lucide-react';
 import { Badge } from './ui/badge';
-import Image from 'next/image';
+import { EpisodeThumbnail } from './EpisodeThumbnail';
 
 interface Episode {
   name: string;
@@ -184,15 +184,11 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
         {!episode ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A0A0A]">
 
-            <Image 
+            <EpisodeThumbnail 
               src={thumbUrl} 
               alt={movieName} 
-              fill
               priority
-              fetchPriority="high"
-              loading="eager"
-              sizes="(max-width: 768px) 100vw, 100vw"
-              className="object-cover opacity-30 blur-sm brightness-50 z-0" 
+              className="absolute inset-0 opacity-30 blur-sm brightness-50 z-0" 
             />
             <div className="relative z-10 text-center space-y-4">
               <div className="bg-[#CCFF00] rounded-full p-4 md:p-6 inline-block opacity-80 animate-pulse">
@@ -203,15 +199,11 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
           </div>
         ) : (!episode.link_embed && !episode.link_m3u8) ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A0A0A] text-center p-6 space-y-5">
-            <Image 
+            <EpisodeThumbnail 
               src={thumbUrl} 
               alt={movieName} 
-              fill
               priority
-              fetchPriority="high"
-              loading="eager"
-              sizes="(max-width: 768px) 100vw, 100vw"
-              className="object-cover opacity-20 blur-sm brightness-50 z-0" 
+              className="absolute inset-0 opacity-20 blur-sm brightness-50 z-0" 
             />
             <div className="relative z-10 space-y-4 max-w-md">
               <div className="bg-yellow-500/20 rounded-full p-4 inline-block">
