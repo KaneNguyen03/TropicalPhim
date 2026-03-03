@@ -8,9 +8,8 @@ interface SearchPageProps {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-function getString(v: string | string[] | undefined): string | undefined {
-  return typeof v === 'string' ? v : Array.isArray(v) ? v[0] : undefined;
-}
+const getString = (v: string | string[] | undefined) =>
+  typeof v === 'string' ? v : v?.[0];
 
 function buildPageUrl(
   current: { [key: string]: string | string[] | undefined },

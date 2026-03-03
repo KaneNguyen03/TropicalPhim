@@ -399,6 +399,19 @@ export const newReleases: Movie[] = [
   }
 ];
 
+export const createEpisodes = (count: number, baseUrl: string) => {
+  const episodes = [];
+  for (let i = 1; i <= count; i++) {
+    episodes.push({
+      name: `Tập ${i}`,
+      slug: `tap-${i}`,
+      filename: `episode-${i}`,
+      link_embed: `${baseUrl}/${i}`
+    });
+  }
+  return episodes;
+};
+
 export const popularSeries: Movie[] = [
   {
     id: '11',
@@ -433,12 +446,7 @@ export const popularSeries: Movie[] = [
     episodes: [
       {
         server_name: 'Vietsub #1',
-        server_data: [...Array(10)].map((_, i) => ({
-          name: `Tập ${i + 1}`,
-          slug: `tap-${i + 1}`,
-          filename: `episode-${i + 1}`,
-          link_embed: `https://example.com/embed/${i + 1}`
-        }))
+        server_data: createEpisodes(10, 'https://example.com/embed')
       }
     ]
   },
@@ -475,12 +483,7 @@ export const popularSeries: Movie[] = [
     episodes: [
       {
         server_name: 'Vietsub #1',
-        server_data: [...Array(12)].map((_, i) => ({
-          name: `Tập ${i + 1}`,
-          slug: `tap-${i + 1}`,
-          filename: `episode-${i + 1}`,
-          link_embed: `https://example.com/embed/${i + 1}`
-        }))
+        server_data: createEpisodes(12, 'https://example.com/embed')
       }
     ]
   }

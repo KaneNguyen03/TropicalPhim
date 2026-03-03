@@ -81,12 +81,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
                 <Badge className="bg-[#CCFF00] text-[#0A0A0A] border-none text-sm font-semibold px-3 py-1">
                   {movie.quality}
                 </Badge>
-                {/* Inline style: đảm bảo Lighthouse đọc đúng background color, tránh
-                    headless browser compositor kết hợp màu cam với gradient overlay */}
-                <Badge
-                  className="border-none text-sm font-semibold px-3 py-1"
-                  style={{ backgroundColor: '#FF6B35', color: '#000000' }}
-                >
+                <Badge className="bg-[#FF8C00] text-[#0A0A0A] border-none text-sm font-semibold px-3 py-1">
                   {movie.year}
                 </Badge>
                 {movie.type === 'series' && movie.episode_total && (
