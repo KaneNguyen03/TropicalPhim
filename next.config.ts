@@ -22,8 +22,9 @@ const nextConfig: NextConfig = {
     // deviceSizes cho full-width images (hero slider, etc.)
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // imageSizes cho images có sizes prop (MovieCard grid):
-    // Card desktop ~221px × DPR 2 = 442px → 480 ≥ 442 ✓ (tránh nhảy lên 640)
-    imageSizes: [16, 32, 48, 64, 96, 128, 192, 256, 384, 480],
+    // 200px card @ DPR1 → 256, @ DPR1.5 → 320 (mới), @ DPR2 → 384
+    // 220px card desktop @ DPR2 → 480 ✓ (tránh nhảy lên 640)
+    imageSizes: [16, 32, 48, 64, 96, 128, 192, 256, 320, 384, 480],
     remotePatterns: [
       {
         protocol: "https",
