@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: "/",
+    canonical: "https://tropicalphim.com",
   },
   icons: {
     icon: "/favicon.svg",
