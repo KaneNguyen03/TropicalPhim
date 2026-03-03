@@ -23,7 +23,7 @@ function NavContent() {
         let isActive = false;
         
         if (item.matchExact) {
-          isActive = pathname === item.path && (!item.params || Object.keys(item.params).length === 0 || Array.from(searchParams.entries()).length === 0);
+          isActive = pathname === item.path && (!item.params || Object.keys(item.params).length === 0 || [...searchParams.entries()].length === 0);
         } else if (item.params) {
           isActive = pathname === item.path && Object.entries(item.params).every(([key, val]) => searchParams.get(key) === val);
         } else {

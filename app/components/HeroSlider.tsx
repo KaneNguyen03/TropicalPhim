@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
+import { cn } from '../components/ui/utils';
 import type { Movie } from '../data/movies';
 
 function stripHtml(html?: string): string {
@@ -48,9 +49,10 @@ export function HeroSlider({ movies }: HeroSliderProps) {
         <div key={movie.id} suppressHydrationWarning>
           <div
             suppressHydrationWarning
-            className={`absolute inset-0 transition-opacity duration-1000 ${
+            className={cn(
+              'absolute inset-0 transition-opacity duration-1000',
               index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
+            )}
           >
           {/* Background Image */}
           <div className="absolute inset-0" suppressHydrationWarning>
@@ -92,7 +94,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
                     className="border-none text-sm px-3 py-1 text-white"
                     style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}
                   >
-                    {String(movie.episode_total).toLowerCase().includes('tập') ? movie.episode_total : `${movie.episode_total} Tập`}
+                    {movie.episode_total?.toLowerCase().includes('tập') ? movie.episode_total : `${movie.episode_total} Tập`}
                   </Badge>
                 )}
               </div>
@@ -190,11 +192,12 @@ export function HeroSlider({ movies }: HeroSliderProps) {
             {/* Outer: fixed w-8 container — Inner: GPU-composited scaleX transform */}
             <div className="w-8 h-1.5 overflow-hidden rounded-full">
               <div
-                className={`h-full w-full rounded-full transition-transform duration-300 origin-left ${
+                className={cn(
+                  'h-full w-full rounded-full transition-transform duration-300 origin-left',
                   index === currentIndex
                     ? 'scale-x-100 bg-[#CCFF00]'
                     : 'scale-x-[0.25] bg-white/50 group-hover:bg-white/70'
-                }`}
+                )}
               />
             </div>
           </button>

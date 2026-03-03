@@ -50,13 +50,15 @@ function buildFilterUrl(
   // Carry over keyword if present
   if (current.q) params.set('q', current.q);
 
-  const merged: Record<string, string> = {
-    ...(current.category ? { category: current.category } : {}),
-    ...(current.country ? { country: current.country } : {}),
-    ...(current.year ? { year: current.year } : {}),
-    ...(current.quality ? { quality: current.quality } : {}),
-    ...(current.type ? { type: current.type } : {}),
-  };
+  const merged: Record<string, string> = Object.fromEntries(
+    Object.entries({
+      category: current.category,
+      country:  current.country,
+      year:     current.year,
+      quality:  current.quality,
+      type:     current.type,
+    }).filter(([, v]) => Boolean(v)) as [string, string][]
+  );
 
   // Toggle: if same value → remove, else set
   if (merged[key] === value) {
@@ -69,7 +71,7 @@ function buildFilterUrl(
     if (key === 'country') { delete merged.type; }
   }
 
-  Object.entries(merged).forEach(([k, v]) => params.set(k, v));
+  for (const [k, v] of Object.entries(merged)) params.set(k, v);
   const qs = params.toString();
   return qs ? `/search?${qs}` : '/search';
 }

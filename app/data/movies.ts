@@ -433,7 +433,7 @@ export const popularSeries: Movie[] = [
     episodes: [
       {
         server_name: 'Vietsub #1',
-        server_data: Array.from({ length: 10 }, (_, i) => ({
+        server_data: [...Array(10)].map((_, i) => ({
           name: `Tập ${i + 1}`,
           slug: `tap-${i + 1}`,
           filename: `episode-${i + 1}`,
@@ -475,7 +475,7 @@ export const popularSeries: Movie[] = [
     episodes: [
       {
         server_name: 'Vietsub #1',
-        server_data: Array.from({ length: 12 }, (_, i) => ({
+        server_data: [...Array(12)].map((_, i) => ({
           name: `Tập ${i + 1}`,
           slug: `tap-${i + 1}`,
           filename: `episode-${i + 1}`,
