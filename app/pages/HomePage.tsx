@@ -3,7 +3,12 @@
 import { Suspense, useLayoutEffect, use } from 'react';
 import { HeroSlider } from '../components/HeroSlider';
 import { MovieCard } from '../components/MovieCard';
-import { ContinueWatching } from '../components/ContinueWatching';
+import dynamic from 'next/dynamic';
+
+const ContinueWatching = dynamic(
+  () => import('../components/ContinueWatching').then((mod) => mod.ContinueWatching),
+  { ssr: false } // Bỏ qua SSR vì component này phụ thuộc hoàn toàn vào localStorage
+);
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import type { Movie } from '../data/movies';

@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   // Tối ưu CSS: inline critical CSS để loại bỏ render-blocking stylesheet
   experimental: {
     inlineCss: true,
+    optimizePackageImports: ["lucide-react", "date-fns", "recharts"],
   },
   compiler: {
     // Xóa console.log trên production build để giảm JS bundle size
