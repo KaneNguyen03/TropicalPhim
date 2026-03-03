@@ -244,9 +244,10 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
                   key={`embed-${episode.slug}`}
                   src={episode.link_embed || undefined}
                   onLoad={() => setIsIframeLoading(false)}
-                  allow="autoplay; fullscreen"
-                  allowFullScreen
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                  // Dùng `allow` theo chuẩn mới — bao gồm cả fullscreen
+                  // Không dùng `allowFullScreen` deprecated để tránh warning conflict
+                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
                   className={`w-full h-full border-0 absolute top-0 left-0 z-0 transition-opacity duration-500 ${isIframeLoading ? 'opacity-0' : 'opacity-100'}`}
                   title={`${movieName} - ${episode.name}`}
                 />

@@ -57,6 +57,12 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
+        {/* Preconnect tới CDN ảnh để giảm connection latency (~160ms RTT) */}
+        <link rel="preconnect" href="https://img.ophim.live" />
+        <link rel="dns-prefetch" href="https://img.ophim.live" />
+        {/* Preconnect tới ophim API */}
+        <link rel="preconnect" href="https://ophim1.com" />
+        <link rel="dns-prefetch" href="https://ophim1.com" />
       </head>
       <body suppressHydrationWarning>
         <Layout>{children}</Layout>

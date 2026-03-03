@@ -11,9 +11,11 @@ interface MovieCardProps {
   showProgress?: boolean;
   progress?: number;
   size?: 'sm' | 'md' | 'lg';
+  /** Index trong grid - dùng cho LCP optimization (index 0-5 = above fold) */
+  priority?: boolean;
 }
 
-export function MovieCard({ movie, showProgress, progress = 0, size = 'md' }: MovieCardProps) {
+export function MovieCard({ movie, showProgress, progress = 0, size = 'md', priority = false }: MovieCardProps) {
   const sizeClasses = {
     sm: 'aspect-[2/3]',
     md: 'aspect-[2/3]',
@@ -34,10 +36,22 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md' }: Mo
           src={size === 'lg' ? movie.thumb_url : movie.poster_url}
           alt={movie.name}
           fill
-          loading="lazy"
+          // Priority = true for above-the-fold cards (LCP optimization)
+          // Lazy load for remaining cards
+          priority={priority}
+          loading={priority ? undefined : 'lazy'}
+          // quality=65: tiết kiệm ~14% so với default 75, không ảnh hưởng rõ rệt đến UX
+          quality={65}
           placeholder="blur"
           blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          // Grid layout: 2col(mobile) → 3col(sm:640px) → 4col(md:768px) → 5col(lg:1024px) → 6col(xl:1280px)
+          // Container max-w-[1440px] với px-4 lg:px-8
+          // Mobile 2col (~50vw - 16px gap), sm 3col (~33vw), md 4col (~25vw), lg 5col (~20vw), xl 6col (~16vw)
+          sizes={
+            size === 'lg'
+              ? '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+              : '(max-width: 639px) calc(50vw - 24px), (max-width: 767px) calc(33vw - 20px), (max-width: 1023px) calc(25vw - 20px), (max-width: 1279px) calc(20vw - 20px), calc(min(1440px, 100vw) / 6 - 20px)'
+          }
           className="object-cover transition-opacity duration-300 group-hover:scale-110"
         />
         
