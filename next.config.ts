@@ -9,13 +9,6 @@ const nextConfig: NextConfig = {
     // Xóa console.log trên production build để giảm JS bundle size
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
-  // Tree-shake lucide-react: chỉ bundle các icons được dùng, không load cả thư viện 575+ icons
-  modularizeImports: {
-    'lucide-react': {
-      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
-      skipDefaultConversion: false,
-    },
-  },
   images: {
     // Ưu tiên AVIF (nhỏ hơn WebP ~50%), fallback WebP
     formats: ['image/avif', 'image/webp'],
