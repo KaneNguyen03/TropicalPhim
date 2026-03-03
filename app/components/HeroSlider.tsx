@@ -76,14 +76,22 @@ export function HeroSlider({ movies }: HeroSliderProps) {
             <div className="max-w-2xl space-y-6">
               {/* Badges */}
               <div className="flex gap-2">
-                <Badge className="bg-[#CCFF00] text-[#0A0A0A] border-none text-sm px-3 py-1">
+                <Badge className="bg-[#CCFF00] text-[#0A0A0A] border-none text-sm font-semibold px-3 py-1">
                   {movie.quality}
                 </Badge>
-                <Badge className="bg-[#FF6B35] text-[#0A0A0A] font-semibold border-none text-sm px-3 py-1">
+                {/* Inline style: đảm bảo Lighthouse đọc đúng background color, tránh
+                    headless browser compositor kết hợp màu cam với gradient overlay */}
+                <Badge
+                  className="border-none text-sm font-semibold px-3 py-1"
+                  style={{ backgroundColor: '#FF6B35', color: '#000000' }}
+                >
                   {movie.year}
                 </Badge>
                 {movie.type === 'series' && movie.episode_total && (
-                  <Badge className="bg-white/20 text-white border-none text-sm px-3 py-1">
+                  <Badge
+                    className="border-none text-sm px-3 py-1 text-white"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}
+                  >
                     {String(movie.episode_total).toLowerCase().includes('tập') ? movie.episode_total : `${movie.episode_total} Tập`}
                   </Badge>
                 )}

@@ -5,9 +5,6 @@ const nextConfig: NextConfig = {
   experimental: {
     inlineCss: true,
   },
-  // Next.js 16 dùng Turbopack mặc định — khai báo để silence warning
-  // Turbopack tự tree-shake và handle modern browser targets tốt hơn Webpack
-  turbopack: {},
   compiler: {
     // Xóa console.log trên production build để giảm JS bundle size
     removeConsole:
