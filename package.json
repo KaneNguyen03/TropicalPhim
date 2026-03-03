@@ -8,6 +8,15 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "browserslist": [
+    "Chrome >= 96",
+    "Edge >= 96",
+    "Firefox >= 95",
+    "Safari >= 15.4",
+    "iOS >= 15.4",
+    "Opera >= 82",
+    "Samsung >= 17"
+  ],
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

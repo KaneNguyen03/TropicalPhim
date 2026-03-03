@@ -168,6 +168,9 @@ export function HeroSlider({ movies }: HeroSliderProps) {
       </button>
 
       {/* Dots Indicator */}
+      {/* Dùng transform: scaleX() thay vì width transition để GPU-composited
+          Kỹ thuật: outer div cố định w-8, inner div scale 0.25→1 từ origin-left
+          → Kết quả thị giác: 8px (inactive) ↔ 32px (active), không gây layout recalc */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-1">
         {movies.map((_, index) => (
           <button
@@ -176,11 +179,16 @@ export function HeroSlider({ movies }: HeroSliderProps) {
             className="p-2 outline-none group flex items-center justify-center min-w-[44px] min-h-[44px]"
             aria-label={`Go to slide ${index + 1}`}
           >
-            <div className={`h-1.5 rounded-full transition-all ${
-              index === currentIndex
-                ? 'w-8 bg-[#CCFF00]'
-                : 'w-2 bg-white/50 group-hover:bg-white/80'
-            }`} />
+            {/* Outer: fixed w-8 container — Inner: GPU-composited scaleX transform */}
+            <div className="w-8 h-1.5 overflow-hidden rounded-full">
+              <div
+                className={`h-full w-full rounded-full transition-transform duration-300 origin-left ${
+                  index === currentIndex
+                    ? 'scale-x-100 bg-[#CCFF00]'
+                    : 'scale-x-[0.25] bg-white/50 group-hover:bg-white/70'
+                }`}
+              />
+            </div>
           </button>
         ))}
       </div>

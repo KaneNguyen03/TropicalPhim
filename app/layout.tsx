@@ -3,7 +3,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://tropicalphim.com'), // Replace with actual domain
+  metadataBase: new URL('https://tropicalphim.com'),
   title: {
     default: "TropicalPhim — Xem Phim Trực Tuyến Miễn Phí",
     template: "%s | TropicalPhim",
@@ -57,11 +57,13 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
-        {/* Preconnect tới CDN ảnh để giảm connection latency (~160ms RTT) */}
-        <link rel="preconnect" href="https://img.ophim.live" />
+        {/*
+          Preconnect hints dưới dạng JSX đảm bảo render trong SSR HTML.
+          crossOrigin="anonymous" cần thiết khi request đến CORS domain.
+        */}
+        <link rel="preconnect" href="https://img.ophim.live" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://ophim1.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://img.ophim.live" />
-        {/* Preconnect tới ophim API */}
-        <link rel="preconnect" href="https://ophim1.com" />
         <link rel="dns-prefetch" href="https://ophim1.com" />
       </head>
       <body suppressHydrationWarning>
