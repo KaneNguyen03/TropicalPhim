@@ -17,9 +17,10 @@ const nextConfig: NextConfig = {
     // Ưu tiên AVIF (nhỏ hơn WebP ~50%), fallback WebP
     formats: ["image/avif", "image/webp"],
     // Whitelist các giá trị quality được dùng trong app:
-    // 60 = movie cards + hero slides không active
+    // 40 = cực nhỏ cho ảnh movie card không active (lazy load)
+    // 60 = movie card (ưu tiên LCP) + ảnh slider nền
     // 75 = hero LCP slide (giữ chất lượng cao)
-    qualities: [60, 75],
+    qualities: [40, 60, 75],
     // deviceSizes cho full-width images (hero slider, etc.)
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // imageSizes cho images có sizes prop (MovieCard grid):

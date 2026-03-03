@@ -9,13 +9,13 @@
     "lint": "eslint"
   },
   "browserslist": [
-    "Chrome >= 96",
-    "Edge >= 96",
-    "Firefox >= 95",
-    "Safari >= 15.4",
-    "iOS >= 15.4",
-    "Opera >= 82",
-    "Samsung >= 17"
+    "Chrome >= 109",
+    "Edge >= 109",
+    "Firefox >= 115",
+    "Safari >= 16.0",
+    "iOS >= 16.0",
+    "Opera >= 95",
+    "Samsung >= 21"
   ],
   "dependencies": {
     "@emotion/react": "^11.14.0",

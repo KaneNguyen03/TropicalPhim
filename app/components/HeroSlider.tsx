@@ -60,12 +60,12 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               src={movie.thumb_url}
               alt={movie.name}
               fill
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1920px"
               priority={index === 0}
               fetchPriority={index === 0 ? 'high' : 'auto'}
-              // LCP slide (index 0): quality 75 cho ảnh hero rõ nét
-              // Các slide khác: quality 60 - chưa visible, tiết kiệm bandwidth
-              quality={index === 0 ? 75 : 60}
+              // LCP slide (index 0): quality 60 (giảm từ 75 vì file gốc 4K quá nặng, tiết kiệm bandwidth lớn)
+              // Các slide khác: quality 40 - chưa visible, tối đa hóa nén
+              quality={index === 0 ? 60 : 40}
               className="object-cover"
             />
             {/* Gradient Overlays */}
