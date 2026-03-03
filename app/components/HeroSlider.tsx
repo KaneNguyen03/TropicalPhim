@@ -76,7 +76,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
                 <Badge className="bg-[#CCFF00] text-[#0A0A0A] border-none text-sm px-3 py-1">
                   {movie.quality}
                 </Badge>
-                <Badge className="bg-[#FF6B35] text-white border-none text-sm px-3 py-1">
+                <Badge className="bg-[#FF6B35] text-[#0A0A0A] font-semibold border-none text-sm px-3 py-1">
                   {movie.year}
                 </Badge>
                 {movie.type === 'series' && movie.episode_total && (
@@ -151,32 +151,34 @@ export function HeroSlider({ movies }: HeroSliderProps) {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-sm transition-all"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-sm transition-all min-w-[48px] min-h-[48px] flex items-center justify-center"
         aria-label="Previous slide"
       >
         <ChevronLeft className="h-6 w-6" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-sm transition-all"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full backdrop-blur-sm transition-all min-w-[48px] min-h-[48px] flex items-center justify-center"
         aria-label="Next slide"
       >
         <ChevronRight className="h-6 w-6" />
       </button>
 
       {/* Dots Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-1">
         {movies.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`h-1 rounded-full transition-all ${
+            className="p-2 outline-none group flex items-center justify-center min-w-[44px] min-h-[44px]"
+            aria-label={`Go to slide ${index + 1}`}
+          >
+            <div className={`h-1.5 rounded-full transition-all ${
               index === currentIndex
                 ? 'w-8 bg-[#CCFF00]'
-                : 'w-1 bg-white/50 hover:bg-white/80'
-            }`}
-            aria-label={`Go to slide ${index + 1}`}
-          />
+                : 'w-2 bg-white/50 group-hover:bg-white/80'
+            }`} />
+          </button>
         ))}
       </div>
     </div>

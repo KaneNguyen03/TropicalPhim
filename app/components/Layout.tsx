@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <span className="text-[#CCFF00]">Tropical</span>
                 <span className="text-white">Phim</span>
               </div>
-              <p className="text-white/70 text-sm leading-relaxed">
+              <p className="text-white/80 text-sm leading-relaxed">
                 Tổng hợp và cung cấp liên kết xem phim trực tuyến từ nhiều nguồn công khai trên internet.
               </p>
             </div>
@@ -90,7 +90,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Copyright */}
-          <div className="mt-6 text-center text-xs text-white/60">
+          <div className="mt-6 text-center text-xs text-white/80">
             © <span suppressHydrationWarning>{new Date().getFullYear()}</span> <span className="text-[#CCFF00]">TropicalPhim</span>. Dự án mã nguồn mở — Không kinh doanh, không lưu trữ phim lậu.
           </div>
         </div>
