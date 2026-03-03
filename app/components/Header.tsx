@@ -118,7 +118,7 @@ export async function Header() {
           {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="text-white hover:text-[#CCFF00]">
+              <Button variant="ghost" size="icon" className="text-white hover:text-[#CCFF00]" aria-label="Mở menu điều hướng">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -134,7 +134,7 @@ export async function Header() {
                 </SheetClose>
 
                 <div className="pt-4 pb-2">
-                  <p className="text-xs text-white/40 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                  <p className="text-xs text-white/60 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
                     <Film className="h-3 w-3" /> Thể Loại
                   </p>
                   <div className="grid grid-cols-2 gap-1">
@@ -150,7 +150,7 @@ export async function Header() {
                 </div>
 
                 <div className="pt-2 pb-2">
-                  <p className="text-xs text-white/40 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                  <p className="text-xs text-white/60 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
                     <Globe className="h-3 w-3" /> Quốc Gia
                   </p>
                   <div className="grid grid-cols-2 gap-1">
@@ -166,7 +166,7 @@ export async function Header() {
                 </div>
 
                 <div className="pt-2">
-                  <p className="text-xs text-white/40 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
+                  <p className="text-xs text-white/60 uppercase tracking-wider px-3 mb-2 flex items-center gap-2">
                     <List className="h-3 w-3" /> Danh Sách
                   </p>
                   {danhSachLinks.map((link) => (

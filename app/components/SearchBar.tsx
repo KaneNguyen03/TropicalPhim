@@ -142,13 +142,15 @@ export function SearchBar({ placeholder = 'Tìm phim, diễn viên...' }: { plac
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => suggestions.length > 0 && setIsOpen(true)}
           placeholder={placeholder}
-          className="w-full pl-10 pr-9 h-9 text-sm bg-[#171717] border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:border-[#CCFF00]/60 focus:ring-1 focus:ring-[#CCFF00]/30 transition-all"
+          aria-label="Tìm kiếm phim"
+          className="w-full pl-10 pr-9 h-9 text-sm bg-[#171717] border border-white/10 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:border-[#CCFF00]/60 focus:ring-1 focus:ring-[#CCFF00]/30 transition-all"
         />
         {(query || isLoading || isPending) && (
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+            aria-label="Xóa tìm kiếm"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
           >
             {isLoading || isPending ? (
               <Loader2 className="h-4 w-4 animate-spin text-[#CCFF00]" />
@@ -185,11 +187,11 @@ export function SearchBar({ placeholder = 'Tìm phim, diễn viên...' }: { plac
                   <p className="text-sm font-medium text-white group-hover:text-[#CCFF00] transition-colors truncate">
                     {movie.name}
                   </p>
-                  <p className="text-xs text-white/50 truncate">{movie.origin_name}</p>
+                  <p className="text-xs text-white/70 truncate">{movie.origin_name}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-[10px] text-[#CCFF00] font-semibold">{movie.quality}</span>
-                    <span className="text-[10px] text-white/40">{movie.year}</span>
-                    <span className="text-[10px] text-white/40">
+                    <span className="text-[10px] text-white/60">{movie.year}</span>
+                    <span className="text-[10px] text-white/60">
                       {movie.type === 'series' ? 'Phim bộ' : movie.type === 'hoathinh' ? 'Hoạt hình' : 'Phim lẻ'}
                     </span>
                   </div>
