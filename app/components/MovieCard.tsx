@@ -41,7 +41,7 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md', prio
           priority={priority}
           loading={priority ? undefined : 'lazy'}
           // quality=65: tiết kiệm ~14% so với default 75, không ảnh hưởng rõ rệt đến UX
-          quality={65}
+          quality={60}
           placeholder="blur"
           blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
           // Grid layout: 2col(mobile) → 3col(sm:640px) → 4col(md:768px) → 5col(lg:1024px) → 6col(xl:1280px)

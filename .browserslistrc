@@ -1,0 +1,11 @@
+# Targeted modern browsers - tất cả đều support ES2020+ Baseline natively
+# Array.prototype.at, Object.hasOwn, Object.fromEntries, String.trimStart/End, etc.
+# Next.js SWC và tools ưu tiên đọc file này hơn package.json browserslist field
+
+Chrome >= 96
+Edge >= 96
+Firefox >= 95
+Safari >= 15.4
+iOS >= 15.4
+Opera >= 82
+Samsung >= 17
