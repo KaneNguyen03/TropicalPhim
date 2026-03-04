@@ -40,8 +40,9 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md', prio
           // Lazy load for remaining cards
           priority={priority}
           loading={priority ? undefined : 'lazy'}
-          // quality=60 cho ảnh ở fold (ưu tiên nét), =40 cho ảnh lazy-loaded (giảm bandwidth)
-          quality={priority ? 60 : 40}
+          // quality mặc định của Next.js là 75. Set 40-60 sẽ làm ảnh bị mờ nét / vỡ hạt (compression artifacts).
+          // Tăng mức độ nét: 90 cho ảnh above-the-fold, 75 (mặc định) cho các ảnh lazy-load bên dưới.
+          quality={priority ? 90 : 75}
           placeholder="blur"
           blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
           // Grid layout: 2col(mobile) → 3col(sm:640px) → 4col(md:768px) → 5col(lg:1024px) → 6col(xl:1280px)
