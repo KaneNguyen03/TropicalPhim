@@ -71,12 +71,10 @@ export default function HomePage({ dataPromise }: HomePageProps) {
 
             {/* Movie Grid - Responsive up to TV sizes */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {section.movies.map((movie, cardIndex) => (
+              {section.movies.map((movie) => (
                 <SpotlightCard key={movie.id} className="p-0 border-none bg-transparent">
                   <MovieCard
                     movie={movie}
-                    // Ưu tiên load 6 card đầu của section đầu tiên (LCP candidates)
-                    priority={sectionIndex === 0 && cardIndex < 6}
                   />
                 </SpotlightCard>
               ))}
