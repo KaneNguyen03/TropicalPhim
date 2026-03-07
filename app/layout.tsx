@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     canonical: "https://tropicalphim.com",
   },
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon-v2.svg",
     apple: "/apple-touch-icon.png",
   },
 };
