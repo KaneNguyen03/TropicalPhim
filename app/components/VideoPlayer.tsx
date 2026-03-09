@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
-import { Server, MonitorPlay, AlertCircle, Loader2 } from 'lucide-react';
+import { Server, MonitorPlay, AlertCircle, Loader2, LightbulbOff, Lightbulb, ToggleLeft, ToggleRight, StepForward } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { EpisodeThumbnail } from './EpisodeThumbnail';
 
@@ -20,10 +22,15 @@ interface VideoPlayerProps {
   movieSlug: string;
   thumbUrl: string;
   trailerUrl?: string;
+  nextEpisodeName?: string | null;
+  nextEpisodeUrl?: string | null;
 }
 
-export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUrl }: VideoPlayerProps) {
+export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUrl, nextEpisodeName, nextEpisodeUrl }: VideoPlayerProps) {
+  const router = useRouter();
   const [server, setServer] = useState<'embed' | 'm3u8'>('embed');
+  const [isLightsOff, setIsLightsOff] = useState(false);
+  const [isAutoNext, setIsAutoNext] = useState(true);
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -185,10 +192,26 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
       
       loadHls();
     }
-  }, [server, episode?.slug, episode?.link_m3u8, movieSlug]);
+  }, [server, episode, episode?.slug, episode?.link_m3u8, movieSlug]);
+
+  const handleVideoEnded = () => {
+    if (isAutoNext && nextEpisodeUrl) {
+      router.push(nextEpisodeUrl);
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <>
+      {/* Lights out overlay */}
+      {isLightsOff && (
+        <div 
+          className="fixed inset-0 bg-black/95 z-60 cursor-pointer" 
+          onClick={() => setIsLightsOff(false)}
+          title="Bật đèn (Click để thoát)"
+        />
+      )}
+      
+      <div className={`flex flex-col gap-4 w-full ${isLightsOff ? 'relative z-70' : ''}`}>
       {/* Container video */}
       <div 
         ref={containerRef}
@@ -280,14 +303,15 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
                       </Button>
                     </div>
                   ) : (
-                    <video
-                      ref={videoRef}
-                      controls
-                      autoPlay
-                      onTimeUpdate={handleTimeUpdate}
-                      className="w-full h-full object-contain"
-                      poster={thumbUrl}
-                    />
+                      <video
+                        ref={videoRef}
+                        controls
+                        autoPlay
+                        onTimeUpdate={handleTimeUpdate}
+                        onEnded={handleVideoEnded}
+                        className="w-full h-full object-contain"
+                        poster={thumbUrl}
+                      />
                   )}
                </div>
             )}
@@ -302,22 +326,25 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
         )}
       </div>
 
-      {/* Control panel: Server switch */}
+      {/* Control panel: Server switch & Actions */}
       {episode && (
-        <div className="flex flex-wrap bg-[#171717]/80 backdrop-blur-sm border border-white/5 rounded-xl p-3 md:p-4 gap-3 items-center justify-between">
-          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+        <div className="flex flex-col md:flex-row bg-[#171717]/80 backdrop-blur-sm border border-white/5 rounded-xl p-3 md:p-4 gap-4 items-start md:items-center justify-between">
+          
+          {/* Left Side: Server Switch */}
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto">
             <span className="text-white/70 text-sm font-medium whitespace-nowrap hidden sm:block">Các Máy Chủ:</span>
             
             <Button
               variant={server === 'embed' ? 'default' : 'outline'}
               onClick={() => setServer('embed')}
-              className={`min-w-[130px] rounded-full transition-all duration-300 ${
+              size="sm"
+              className={`min-w-[120px] rounded-full transition-all duration-300 ${
                 server === 'embed' 
                   ? 'bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-[#0A0A0A] shadow-[0_0_15px_rgba(204,255,0,0.3)]' 
                   : 'text-white border-white/10 hover:bg-white/10 hover:border-white/30 bg-transparent'
               }`}
             >
-              <Server className="w-4 h-4 mr-2" />
+              <Server className="w-3.5 h-3.5 mr-2" />
               Server #1 (Embed)
             </Button>
             
@@ -325,23 +352,64 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
               <Button
                 variant={server === 'm3u8' ? 'default' : 'outline'}
                 onClick={() => setServer('m3u8')}
-                className={`min-w-[130px] rounded-full transition-all duration-300 ${
+                size="sm"
+                className={`min-w-[120px] rounded-full transition-all duration-300 ${
                   server === 'm3u8' 
                     ? 'bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-[#0A0A0A] shadow-[0_0_15px_rgba(204,255,0,0.3)]' 
                     : 'text-white border-white/10 hover:bg-white/10 hover:border-white/30 bg-transparent'
                 }`}
               >
-                <MonitorPlay className="w-4 h-4 mr-2" />
+                <MonitorPlay className="w-3.5 h-3.5 mr-2" />
                 Server #2 (HLS)
               </Button>
             )}
           </div>
           
-          <div className="hidden md:flex items-center">
-             <span className="text-xs text-white/40">Gặp lỗi mờ/đứng? Vui lòng đổi server</span>
+          {/* Right Side: Toggles & Next Episode */}
+          <div className="flex flex-wrap md:flex-nowrap items-center gap-2 w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t md:border-0 border-white/10">
+             
+             {/* Toggle Lights */}
+             <Button
+                variant="outline"
+                size="sm"
+                className="rounded-full bg-black/40 border-white/10 hover:bg-white/10 text-white text-xs px-3"
+                onClick={() => setIsLightsOff(!isLightsOff)}
+             >
+                {isLightsOff ? <Lightbulb className="w-3.5 h-3.5 mr-1.5 text-[#CCFF00]" /> : <LightbulbOff className="w-3.5 h-3.5 mr-1.5" />}
+                {isLightsOff ? 'Bật đèn' : 'Tắt đèn'}
+             </Button>
+
+             {/* Auto Next Toggle */}
+             {nextEpisodeUrl && (
+               <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full bg-black/40 border-white/10 hover:bg-white/10 text-white text-xs px-3"
+                  onClick={() => setIsAutoNext(!isAutoNext)}
+               >
+                  {isAutoNext ? <ToggleRight className="w-4 h-4 mr-1.5 text-[#CCFF00]" /> : <ToggleLeft className="w-4 h-4 mr-1.5 text-white/50" />}
+                  Chuyển tập: {isAutoNext ? 'Bật' : 'Tắt'}
+               </Button>
+             )}
+
+             {/* Next Episode Button */}
+             {nextEpisodeUrl && nextEpisodeName && (
+                <Button 
+                   asChild
+                   size="sm"
+                   className="rounded-full bg-[#CCFF00]/10 border border-[#CCFF00]/20 hover:bg-[#CCFF00]/20 text-[#CCFF00] text-xs px-4 ml-auto md:ml-2"
+                >
+                   <Link href={nextEpisodeUrl} prefetch={false}>
+                      Tập tiếp: {nextEpisodeName}
+                      <StepForward className="w-3.5 h-3.5 ml-1.5" />
+                   </Link>
+                </Button>
+             )}
+
           </div>
         </div>
       )}
     </div>
+    </>
   );
 }

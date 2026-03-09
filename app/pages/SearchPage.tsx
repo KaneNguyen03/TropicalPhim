@@ -45,6 +45,12 @@ export default async function SearchPage({ searchParams = {} }: SearchPageProps)
     ? allMovies.filter((m) => m.quality === quality)
     : allMovies;
 
+  // When quality filter is active, pagination from the API is unreliable
+  // because the API doesn't know about the client-side filter.
+  // We override totalPages/totalItems to reflect the actual filtered state.
+  const effectiveTotalPages = quality ? 1 : pagination.totalPages;
+  const effectiveTotalItems = quality ? movies.length : pagination.totalItems;
+
   // Build a human-readable title
   const pageTitle = apiTitle ||
     (keyword
@@ -70,7 +76,7 @@ export default async function SearchPage({ searchParams = {} }: SearchPageProps)
   ];
 
   const currentPage = pagination.currentPage;
-  const totalPages = pagination.totalPages;
+  const totalPages = effectiveTotalPages;
 
   const prevPageUrl = currentPage > 1
     ? buildPageUrl(searchParams, { page: String(currentPage - 1) })
@@ -96,7 +102,7 @@ export default async function SearchPage({ searchParams = {} }: SearchPageProps)
           <div className="mb-5">
             <h1 className="text-2xl md:text-3xl font-bold text-white">{pageTitle}</h1>
             <div className="flex items-center gap-3 mt-1 text-sm text-white/50">
-              <span>{pagination.totalItems.toLocaleString()} phim</span>
+              <span>{effectiveTotalItems.toLocaleString()} phim</span>
               {totalPages > 1 && (
                 <>
                   <span>•</span>

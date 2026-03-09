@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     // 60 = movie card (ưu tiên LCP) + ảnh slider nền
     // 75 = hero LCP slide (giữ chất lượng cao)
     // 90 = ảnh ưu tiên siêu nét (ví dụ MovieCard priority)
-    qualities: [40, 60, 75, 90],
+    qualities: [20, 40, 60, 75, 80, 90, 95],
     // deviceSizes cho full-width images (hero slider, etc.)
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // imageSizes cho images có sizes prop (MovieCard grid):

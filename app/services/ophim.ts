@@ -232,6 +232,29 @@ export async function getMoviesByList(listType: string): Promise<Movie[]> {
   }
 }
 
+/**
+ * Fetch movies by category slug (thể loại).
+ * Uses the correct /the-loai/:slug endpoint, distinct from /danh-sach/:slug.
+ * Results are cached for 1h via ISR.
+ */
+export async function getMoviesByCategory(categorySlug: string): Promise<Movie[]> {
+  try {
+    const res = await fetch(`https://ophim1.com/v1/api/the-loai/${categorySlug}`, {
+      next: { revalidate: 3600 }
+    });
+    if (!res.ok) return [];
+    const json: OphimResponse = await res.json();
+    if (!json.data?.items) return [];
+
+    return json.data.items.map((item) =>
+      mapOphimToMovie(item, json.data.APP_DOMAIN_CDN_IMAGE)
+    );
+  } catch (error) {
+    console.error('getMoviesByCategory Error:', error);
+    return [];
+  }
+}
+
 export interface OphimDetailResponse {
   status: boolean;
   msg: string;

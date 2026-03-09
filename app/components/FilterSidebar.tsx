@@ -65,8 +65,10 @@ function buildFilterUrl(
     delete merged[key];
   } else {
     merged[key] = value;
-    // Clear conflicting params
-    if (key === 'type') { delete merged.category; delete merged.country; }
+    // Clear conflicting params:
+    // - type vs category dùng endpoint khác nhau, không thể đi chung
+    // - type vẫn có thể kết hợp với country/year (Ophim cho phép)
+    if (key === 'type') { delete merged.category; }
     if (key === 'category') { delete merged.type; }
     if (key === 'country') { delete merged.type; }
   }

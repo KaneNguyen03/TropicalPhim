@@ -41,8 +41,8 @@ export default function HomePage({ dataPromise }: HomePageProps) {
   const newReleases = homeMovies.slice(5, 17);
 
   const sections = [
-    { title: 'Mới Phát Hành', movies: newReleases, link: '/search?filter=new' },
-    { title: 'Phim Bộ Nổi Bật', movies: seriesMovies.slice(0, 12), link: '/search?type=series' },
+    { title: 'Mới Phát Hành', movies: newReleases, link: '/search' },
+    { title: 'Phim Bộ Nổi Bật', movies: seriesMovies.slice(0, 12), link: '/search?type=phim-bo' },
     { title: 'Phim Hoạt Hình', movies: animatedMovies.slice(0, 12), link: '/search?category=hoat-hinh' }
   ];
 

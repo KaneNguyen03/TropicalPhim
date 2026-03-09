@@ -64,14 +64,14 @@ export async function Header() {
           </div>
 
           {/* Quốc Gia Dropdown */}
-          <div className="group relative">
+          <div className="group relative" suppressHydrationWarning>
             <button className="flex items-center gap-1 px-3 py-2 text-sm text-white/80 hover:text-[#CCFF00] transition-colors rounded-md hover:bg-white/5">
               <Globe className="h-4 w-4" />
               Quốc Gia
               <ChevronDown className="h-3 w-3 transition-transform group-hover:rotate-180" />
             </button>
-            <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div className="bg-[#171717] border border-white/10 rounded-xl shadow-2xl shadow-black/50 p-3 w-64 grid grid-cols-2 gap-1">
+            <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50" suppressHydrationWarning>
+              <div className="bg-[#171717] border border-white/10 rounded-xl shadow-2xl shadow-black/50 p-3 w-64 grid grid-cols-2 gap-1" suppressHydrationWarning>
                 {countries.slice(0, 20).map((country) => (
                   <Link
                     key={country.id}
@@ -87,14 +87,14 @@ export async function Header() {
           </div>
 
           {/* Danh Sách Dropdown */}
-          <div className="group relative">
+          <div className="group relative" suppressHydrationWarning>
             <button className="flex items-center gap-1 px-3 py-2 text-sm text-white/80 hover:text-[#CCFF00] transition-colors rounded-md hover:bg-white/5">
               <List className="h-4 w-4" />
               Danh Sách
               <ChevronDown className="h-3 w-3 transition-transform group-hover:rotate-180" />
             </button>
-            <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div className="bg-[#171717] border border-white/10 rounded-xl shadow-2xl shadow-black/50 p-3 w-52 flex flex-col gap-1">
+            <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50" suppressHydrationWarning>
+              <div className="bg-[#171717] border border-white/10 rounded-xl shadow-2xl shadow-black/50 p-3 w-52 flex flex-col gap-1" suppressHydrationWarning>
                 {danhSachLinks.map((link) => (
                   <Link
                     key={link.href}
@@ -111,12 +111,12 @@ export async function Header() {
         </nav>
 
         {/* Search Bar - Desktop & Mobile */}
-        <div className="flex-1 max-w-xs mx-3 md:mx-6">
+        <div className="flex-1 max-w-xs mx-3 md:mx-6" suppressHydrationWarning>
           <SearchBar />
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center space-x-1 md:space-x-2">
+        <div className="flex items-center space-x-1 md:space-x-2" suppressHydrationWarning>
           {/* Favorites/Search button removed as SearchBar is now visible */}
 
           {/* Mobile Menu */}
