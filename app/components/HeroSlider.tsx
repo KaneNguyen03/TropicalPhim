@@ -1,5 +1,6 @@
 'use client'
 
+import React, { memo } from 'react';
 import { ChevronLeft, ChevronRight, Play, Info, Star } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,7 +10,6 @@ import { Badge } from '@/app/components/ui/badge';
 import { cn } from '@/app/components/ui/utils';
 import type { Movie } from '@/app/data/movies';
 import { useHeroSlider } from '@/app/hooks/useHeroSlider';
-import { stripHtml } from '@/app/lib/string';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -74,10 +74,10 @@ interface SlideContentProps {
   isVisible: boolean;
 }
 
-function SlideContent({ movie, isVisible }: SlideContentProps) {
+const SlideContent = memo(function SlideContent({ movie, isVisible }: SlideContentProps) {
   const hasRating = (movie.tmdb?.vote_average ?? 0) > 0;
   const hasCategories = (movie.category?.length ?? 0) > 0;
-  const description = stripHtml(movie.description);
+  const description = movie.description;
 
   return (
     <div
@@ -173,7 +173,7 @@ function SlideContent({ movie, isVisible }: SlideContentProps) {
       </div>
     </div>
   );
-}
+});
 
 // ─── PosterCard ───────────────────────────────────────────────────────────────
 

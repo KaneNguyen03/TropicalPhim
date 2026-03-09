@@ -1,4 +1,5 @@
 import type { Movie } from '../data/movies';
+import { stripHtml } from '../lib/string';
 
 export interface OphimResponse {
   status: string;
@@ -351,7 +352,7 @@ export async function getMovieDetail(slug: string): Promise<Movie | null> {
           vote_count: 0
         },
         imdb: { id: '' },
-        description: item.content || '',
+        description: stripHtml(item.content || ''),
         episodes: json.data.item.episodes || [],
         breadCrumb: json.data.breadCrumb || []
       };
@@ -397,7 +398,7 @@ export async function getMovieDetail(slug: string): Promise<Movie | null> {
           vote_count: 0
         },
         imdb: { id: '' },
-        description: m.content || '',
+        description: stripHtml(m.content || ''),
         episodes: json.episodes || []
       };
       return mappedMovie;
