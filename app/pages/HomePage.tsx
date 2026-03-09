@@ -1,9 +1,20 @@
 'use client';
 
 import { Suspense, useLayoutEffect, use } from 'react';
-import { HeroSlider } from '../components/HeroSlider';
 import { MovieCard } from '../components/MovieCard';
 import dynamic from 'next/dynamic';
+
+const HeroSlider = dynamic(
+  () => import('../components/HeroSlider').then((mod) => mod.HeroSlider),
+  {
+    // Tránh hydration mismatch trong dev do extension có thể chèn attributes vào DOM trước hydrate
+    // Prod vẫn SSR để giữ LCP tốt
+    ssr: process.env.NODE_ENV !== 'production' ? false : true,
+    loading: () => (
+      <div className="relative w-full h-[70vh] md:h-[80vh] bg-[#0A0A0A] animate-pulse" />
+    ),
+  }
+);
 
 const ContinueWatching = dynamic(
   () => import('../components/ContinueWatching').then((mod) => mod.ContinueWatching),
@@ -41,9 +52,7 @@ export default function HomePage({ dataPromise }: HomePageProps) {
       
       {/* Hero Slider - full width */}
       <div className="w-full max-w-[2560px] mx-auto">
-        <Suspense fallback={
-          <div className="relative w-full h-[70vh] md:h-[80vh] bg-[#0A0A0A] animate-pulse" />
-        }>
+        <Suspense fallback={<div className="relative w-full h-[70vh] md:h-[80vh] bg-[#0A0A0A] animate-pulse" />}>
           <HeroSlider movies={featuredMovies} />
         </Suspense>
       </div>

@@ -62,6 +62,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1920px"
               priority={index === 0}
+              loading={index === 0 ? 'eager' : 'lazy'}
               fetchPriority={index === 0 ? 'high' : 'auto'}
               // LCP slide (index 0): quality 90 (để ảnh slider căng nét, không bị vỡ hạt)
               // Các slide khác: quality 75 (mặc định của Next.js)
@@ -133,7 +134,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
                   size="lg"
                   className="bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-[#0A0A0A] font-semibold"
                 >
-                  <Link href={`/movie/${movie.slug}`}>
+                  <Link href={`/movie/${movie.slug}`} prefetch={false}>
                     <Play className="mr-2 h-5 w-5 fill-current" />
                     XEM NGAY
                   </Link>
@@ -144,7 +145,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
                   variant="outline"
                   className="border-white/30 bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
                 >
-                  <Link href={`/movie/${movie.slug}`}>
+                  <Link href={`/movie/${movie.slug}`} prefetch={false}>
                     <Info className="mr-2 h-5 w-5" />
                     CHI TIẾT
                   </Link>
