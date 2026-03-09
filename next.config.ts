@@ -20,7 +20,8 @@ const nextConfig: NextConfig = {
     // 40 = cực nhỏ cho ảnh movie card không active (lazy load)
     // 60 = movie card (ưu tiên LCP) + ảnh slider nền
     // 75 = hero LCP slide (giữ chất lượng cao)
-    qualities: [40, 60, 75],
+    // 90 = ảnh ưu tiên siêu nét (ví dụ MovieCard priority)
+    qualities: [40, 60, 75, 90],
     // deviceSizes cho full-width images (hero slider, etc.)
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // imageSizes cho images có sizes prop (MovieCard grid):
@@ -35,6 +36,9 @@ const nextConfig: NextConfig = {
     ],
     // Cache ảnh 30 ngày để giảm re-fetch
     minimumCacheTTL: 86400 * 30,
+    // Tránh timeout Optimizer trong môi trường dev (chậm do chuyển đổi AVIF/WebP từ Ophim)
+    // Prod vẫn dùng optimizer đầy đủ để tối ưu tốc độ tải.
+    unoptimized: process.env.NODE_ENV === "development",
   },
 };
 

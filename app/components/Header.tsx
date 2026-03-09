@@ -23,7 +23,7 @@ export async function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A0A0A]/95 backdrop-blur supports-backdrop-filter:bg-[#0A0A0A]/80" suppressHydrationWarning>
       <div className="container flex h-16 items-center justify-between px-4 lg:px-8 max-w-[1440px] mx-auto" suppressHydrationWarning>
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 shrink-0">
+        <Link href="/" prefetch={false} className="flex items-center space-x-2 shrink-0">
           <span className="block text-2xl font-bold">
             <span className="text-[#CCFF00]">Tropical</span>
             <span className="text-white">Phim</span>
@@ -34,6 +34,7 @@ export async function Header() {
         <nav className="hidden md:flex items-center space-x-1">
           <Link
             href="/"
+            prefetch={false}
             className="px-3 py-2 text-sm text-white/80 hover:text-[#CCFF00] transition-colors rounded-md hover:bg-white/5"
           >
             Trang Chủ
@@ -52,6 +53,7 @@ export async function Header() {
                   <Link
                     key={cat.id}
                     href={`/search?category=${cat.slug}`}
+                    prefetch={false}
                     className="text-sm text-white/70 hover:text-[#CCFF00] hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors truncate"
                   >
                     {cat.name}
@@ -74,6 +76,7 @@ export async function Header() {
                   <Link
                     key={country.id}
                     href={`/search?country=${country.slug}`}
+                    prefetch={false}
                     className="text-sm text-white/70 hover:text-[#CCFF00] hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors truncate"
                   >
                     {country.name}
@@ -96,6 +99,7 @@ export async function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
+                    prefetch={false}
                     className="text-sm text-white/70 hover:text-[#CCFF00] hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors"
                   >
                     {link.label}
@@ -128,7 +132,7 @@ export async function Header() {
               </SheetTitle>
               <nav className="flex flex-col space-y-1">
                 <SheetClose asChild>
-                  <Link href="/" className="text-base text-white/80 hover:text-[#CCFF00] px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
+                  <Link href="/" prefetch={false} className="text-base text-white/80 hover:text-[#CCFF00] px-3 py-2 rounded-lg hover:bg-white/5 transition-colors">
                     Trang Chủ
                   </Link>
                 </SheetClose>
@@ -140,7 +144,7 @@ export async function Header() {
                   <div className="grid grid-cols-2 gap-1">
                     {categories.slice(0, 16).map((cat) => (
                       <SheetClose key={cat.id} asChild>
-                        <Link href={`/search?category=${cat.slug}`}
+                        <Link href={`/search?category=${cat.slug}`} prefetch={false}
                           className="text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors truncate">
                           {cat.name}
                         </Link>
@@ -156,7 +160,7 @@ export async function Header() {
                   <div className="grid grid-cols-2 gap-1">
                     {countries.slice(0, 12).map((country) => (
                       <SheetClose key={country.id} asChild>
-                        <Link href={`/search?country=${country.slug}`}
+                        <Link href={`/search?country=${country.slug}`} prefetch={false}
                           className="text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors truncate">
                           {country.name}
                         </Link>
@@ -171,7 +175,7 @@ export async function Header() {
                   </p>
                   {danhSachLinks.map((link) => (
                     <SheetClose key={link.href} asChild>
-                      <Link href={link.href}
+                      <Link href={link.href} prefetch={false}
                         className="block text-sm text-white/70 hover:text-[#CCFF00] px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
                         {link.label}
                       </Link>

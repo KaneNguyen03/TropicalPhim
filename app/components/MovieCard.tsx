@@ -25,6 +25,7 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md', prio
   return (
     <Link
       href={`/movie/${movie.slug}`}
+      prefetch={false}
       className={cn(
         'group relative block rounded-lg overflow-hidden bg-[#171717] transition-all duration-300 hover:scale-105 hover:ring-2 hover:ring-[#CCFF00] focus:outline-none focus:ring-2 focus:ring-[#CCFF00] focus:scale-105',
         sizeClasses[size]
@@ -58,7 +59,7 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md', prio
           sizes={
             size === 'lg'
               ? '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
-              : '(max-width: 639px) calc(50vw - 24px), (max-width: 767px) calc(33vw - 21px), (max-width: 1023px) calc(25vw - 20px), (max-width: 1279px) calc(20vw - 26px), 216px'
+              : '(max-width: 639px) calc(50vw - 24px), (max-width: 767px) calc(33vw - 21px), (max-width: 1023px) calc(25vw - 20px), (max-width: 1279px) calc(20vw - 26px), 260px'
           }
           className="object-cover transition-opacity duration-300 group-hover:scale-110"
         />

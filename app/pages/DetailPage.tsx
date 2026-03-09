@@ -126,6 +126,7 @@ export default async function DetailPage({ slug }: { slug: string }) {
                                     .replace('/the-loai/', '/search?category=')
                                     .replace('/quoc-gia/', '/search?country=')
                                   } 
+                                  prefetch={false}
                                   className="hover:text-[#CCFF00]"
                                 >
                                   {item.name}
@@ -184,6 +185,7 @@ export default async function DetailPage({ slug }: { slug: string }) {
                   <Link
                     key={cat.id}
                     href={`/search?category=${cat.slug}`}
+                    prefetch={false}
                     className="text-sm text-[#CCFF00] hover:text-[#CCFF00]/80"
                   >
                     {cat.name}

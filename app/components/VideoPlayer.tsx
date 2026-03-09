@@ -27,6 +27,7 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastSavedTimeRef = useRef(0);
   const [hlsError, setHlsError] = useState<string | null>(null);
 
   // Reset loading state when changing server or episode
@@ -71,23 +72,35 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
   const handleTimeUpdate = () => {
     if (!episode || !videoRef.current) return;
     try {
-      // Ignore first few seconds to prevent accidental immediate saves overwriting completed progress
-      if (videoRef.current.currentTime > 5) {
-        localStorage.setItem(`tropicalphim_progress_${movieSlug}`, JSON.stringify({
-          episodeSlug: episode.slug,
-          time: videoRef.current.currentTime,
-          duration: videoRef.current.duration,
-          movieName,
-          thumbUrl,
-          updatedAt: Date.now()
-        }));
+      const currentTime = videoRef.current.currentTime;
+      const duration = videoRef.current.duration || 0;
 
-        // Update recent list
-        const recent = JSON.parse(localStorage.getItem('tropicalphim_recent') || '[]');
-        const filtered = recent.filter((r: { slug: string }) => r.slug !== movieSlug);
-        const updated = [{ slug: movieSlug, name: movieName, thumb: thumbUrl, updatedAt: Date.now() }, ...filtered].slice(0, 10);
-        localStorage.setItem('tropicalphim_recent', JSON.stringify(updated));
-      }
+      // Bỏ qua vài giây đầu và throttle việc lưu để tránh ghi localStorage quá dày gây giật UI
+      if (currentTime <= 5 || duration <= 0) return;
+
+      const lastSaved = lastSavedTimeRef.current;
+      // Chỉ lưu mỗi 10 giây hoặc khi tiến độ tăng thêm tối thiểu 10% duration
+      const shouldSaveByTime = currentTime - lastSaved >= 10;
+      const shouldSaveByPercent = duration > 0 && (currentTime - lastSaved) / duration >= 0.1;
+
+      if (!shouldSaveByTime && !shouldSaveByPercent) return;
+
+      lastSavedTimeRef.current = currentTime;
+
+      localStorage.setItem(`tropicalphim_progress_${movieSlug}`, JSON.stringify({
+        episodeSlug: episode.slug,
+        time: currentTime,
+        duration,
+        movieName,
+        thumbUrl,
+        updatedAt: Date.now()
+      }));
+
+      // Cập nhật danh sách gần đây nhưng cũng đã được throttle theo time ở trên
+      const recent = JSON.parse(localStorage.getItem('tropicalphim_recent') || '[]');
+      const filtered = recent.filter((r: { slug: string }) => r.slug !== movieSlug);
+      const updated = [{ slug: movieSlug, name: movieName, thumb: thumbUrl, updatedAt: Date.now() }, ...filtered].slice(0, 10);
+      localStorage.setItem('tropicalphim_recent', JSON.stringify(updated));
     } catch {
       // Ignore if block storage
     }
@@ -172,7 +185,7 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
       
       loadHls();
     }
-  }, [server, episode, movieSlug]);
+  }, [server, episode?.slug, episode?.link_m3u8, movieSlug]);
 
   return (
     <div className="flex flex-col gap-4 w-full">

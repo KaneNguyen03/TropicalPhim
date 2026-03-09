@@ -95,6 +95,7 @@ function FilterChipLink({
   const content = (
     <Link
       href={href}
+      prefetch={false}
       className={cn(
         'px-3 py-1.5 rounded-lg text-xs font-medium transition-all border inline-block',
         active
@@ -160,7 +161,7 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
                 size="sm"
                 className="w-full text-white/60 hover:text-[#CCFF00] hover:bg-[#CCFF00]/10 transition-all duration-200"
               >
-                <Link href={buildResetUrl(currentFilters)}>
+                <Link href={buildResetUrl(currentFilters)} prefetch={false}>
                   <X className="mr-2 h-3.5 w-3.5" />
                   Xóa bộ lọc
                 </Link>
@@ -173,7 +174,7 @@ export function FilterSidebar({ categories, countries, currentFilters = {} }: Fi
               size="sm"
               className="w-full text-white/60 hover:text-[#CCFF00] hover:bg-[#CCFF00]/10 transition-all duration-200"
             >
-              <Link href={buildResetUrl(currentFilters)}>
+              <Link href={buildResetUrl(currentFilters)} prefetch={false}>
                 <X className="mr-2 h-3.5 w-3.5" />
                 Xóa bộ lọc
               </Link>
