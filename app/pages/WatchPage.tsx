@@ -89,7 +89,9 @@ export default async function WatchPage({
     const idx = list.findIndex((ep) => ep.slug === currentEpisode?.slug);
     if (idx !== -1 && idx < list.length - 1) {
       nextEpisode = list[idx + 1];
-      nextEpisodeUrl = `/watch/${movie.slug}/${nextEpisode.slug}?server=${safeServerIdx}`;
+      nextEpisodeUrl = safeServerIdx === 0
+        ? `/watch/${movie.slug}/${nextEpisode.slug}`
+        : `/watch/${movie.slug}/${nextEpisode.slug}?sv=${safeServerIdx}`;
     }
   }
 

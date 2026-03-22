@@ -36,10 +36,12 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
   const containerRef = useRef<HTMLDivElement>(null);
   const lastSavedTimeRef = useRef(0);
   const [hlsError, setHlsError] = useState<string | null>(null);
+  const [showNextOverlay, setShowNextOverlay] = useState(false);
 
   // Reset loading state when changing server or episode
   useEffect(() => {
     setIsIframeLoading(true);
+    setShowNextOverlay(false);
   }, [server, episode?.slug]);
 
   // Auto-rotate logic for mobile
@@ -81,6 +83,17 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
     try {
       const currentTime = videoRef.current.currentTime;
       const duration = videoRef.current.duration || 0;
+
+      // Logic for Next Episode Overlay
+      if (nextEpisodeUrl && duration > 0) {
+        const timeLeft = duration - currentTime;
+        // Show overlay when less than 15s remaining, and hide if we seeked back
+        if (timeLeft <= 15 && timeLeft > 0) {
+          if (!showNextOverlay) setShowNextOverlay(true);
+        } else {
+          if (showNextOverlay) setShowNextOverlay(false);
+        }
+      }
 
       // Bỏ qua vài giây đầu và throttle việc lưu để tránh ghi localStorage quá dày gây giật UI
       if (currentTime <= 5 || duration <= 0) return;
@@ -304,6 +317,7 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
                     </div>
                   ) : (
                       <video
+                        key={`m3u8-${episode.slug}`}
                         ref={videoRef}
                         controls
                         autoPlay
@@ -317,11 +331,40 @@ export function VideoPlayer({ episode, movieName, movieSlug, thumbUrl, trailerUr
             )}
             
             {/* Overlay hint if not interacting */}
-            <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                <Badge className="bg-black/60 text-[#CCFF00] border-[#CCFF00]/50 backdrop-blur-md">
                  Đang phát trên Server {server === 'embed' ? 'Embed' : 'M3U8'}
                </Badge>
             </div>
+
+            {/* Next Episode Overlay */}
+            {showNextOverlay && nextEpisodeUrl && nextEpisodeName && (
+              <div className="absolute bottom-20 right-4 md:right-8 z-30 bg-black/90 border border-white/20 p-4 md:p-5 rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] backdrop-blur-md animate-in slide-in-from-right-8 fade-in flex flex-col gap-3 max-w-sm w-full">
+                <div className="flex flex-col gap-1">
+                  <span className="text-white/70 text-xs font-bold uppercase tracking-wider">Chuẩn bị phát</span>
+                  <span className="text-white font-medium text-sm line-clamp-1">{nextEpisodeName}</span>
+                </div>
+                <div className="flex gap-2 justify-end mt-2">
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => setShowNextOverlay(false)} 
+                    className="text-white/70 hover:text-white hover:bg-white/10"
+                  >
+                    Bỏ qua
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    asChild 
+                    className="bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-[#0A0A0A] font-bold shadow-[0_0_15px_rgba(204,255,0,0.3)] transition-all"
+                  >
+                    <Link href={nextEpisodeUrl}>
+                      Chuyển tập <StepForward className="w-4 h-4 ml-1.5" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Play, Info, Star } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,9 +12,6 @@ import type { Movie } from '@/app/data/movies';
 import { useHeroSlider } from '@/app/hooks/useHeroSlider';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const BLUR_PLACEHOLDER =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
 // ─── EpisodeBadge ─────────────────────────────────────────────────────────────
 
@@ -185,6 +182,17 @@ interface PosterCardProps {
 }
 
 export function PosterCard({ movie, isActive = true, isPriority = false, className }: PosterCardProps) {
+  const [useThumbFallback, setUseThumbFallback] = useState(false);
+  const [useStaticFallback, setUseStaticFallback] = useState(false);
+
+  const posterSafe = movie.poster_url && !movie.poster_url.includes('undefined') ? movie.poster_url : '';
+  const thumbSafe = movie.thumb_url && !movie.thumb_url.includes('undefined') ? movie.thumb_url : '';
+  const imageSrc = useStaticFallback
+    ? '/file.svg'
+    : useThumbFallback
+      ? (thumbSafe || '/file.svg')
+      : (posterSafe || thumbSafe || '/file.svg');
+
   return (
     <div
       className={cn(
@@ -199,14 +207,22 @@ export function PosterCard({ movie, isActive = true, isPriority = false, classNa
       {/* 2. Poster Container */}
       <div className="relative h-full w-full overflow-hidden rounded-xl shadow-2xl transition-transform duration-500 ease-out group-hover:scale-[1.02] group-hover:-translate-y-2">
         <Image
-          src={movie.poster_url || movie.thumb_url}
+          src={imageSrc}
           alt={movie.name}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
           priority={isPriority}
-          quality={isPriority ? 95 : 80}
-          placeholder="blur"
-          blurDataURL={BLUR_PLACEHOLDER}
+          quality={isPriority ? 90 : 75}
+          loading={isPriority ? 'eager' : 'lazy'}
+          onError={() => {
+            if (!useThumbFallback) {
+              setUseThumbFallback(true);
+              return;
+            }
+            if (!useStaticFallback) {
+              setUseStaticFallback(true);
+            }
+          }}
           className="object-cover transform transition-transform duration-700 group-hover:scale-110"
         />
 
@@ -253,22 +269,26 @@ export function HeroSlider({ movies }: HeroSliderProps) {
           {/* Ambient blurred backdrop */}
           <div className="absolute inset-0 overflow-hidden">
             <Image
-              src={movie.poster_url || movie.thumb_url}
+              src={
+                (movie.poster_url && !movie.poster_url.includes('undefined') ? movie.poster_url : '') ||
+                (movie.thumb_url && !movie.thumb_url.includes('undefined') ? movie.thumb_url : '') ||
+                '/file.svg'
+              }
               alt=""
               fill
               sizes="100vw"
               priority={index === 0}
               loading={index === 0 ? 'eager' : 'lazy'}
-              quality={20}
-              // Much heavier blur and scale to make it feel like true ambient lighting
-              className="object-cover blur-[50px] md:blur-[80px] scale-125 md:scale-150 opacity-60 md:opacity-80 transition-transform duration-[15s] ease-linear"
-              style={{ transform: index === currentIndex ? 'scale(1.4)' : 'scale(1.2)' }}
+              quality={45}
+              // Giảm blur/scale quá nặng để tránh cảm giác ảnh bị bệt hoặc đen nền.
+              className="object-cover blur-[22px] md:blur-[36px] scale-110 md:scale-125 opacity-45 md:opacity-60 transition-transform duration-[12s] ease-linear"
+              style={{ transform: index === currentIndex ? 'scale(1.22)' : 'scale(1.12)' }}
             />
           </div>
 
           {/* Overlays for readability */}
           {/* Mobile: very dark overlay for contrast. Desktop: dark on left, subtle on right */}
-          <div className="absolute inset-0 bg-[#0A0A0A]/70 md:bg-[#0A0A0A]/40" />
+          <div className="absolute inset-0 bg-[#0A0A0A]/45 md:bg-[#0A0A0A]/28" />
 
           {/* Desktop Left-to-right cinematic shadow */}
           <div className="hidden md:block absolute inset-0 bg-linear-to-r from-[#0A0A0A]/95 via-[#0A0A0A]/50 to-transparent" />

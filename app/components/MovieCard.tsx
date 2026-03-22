@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Play, Star } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
@@ -5,22 +7,31 @@ import { cn } from '../components/ui/utils';
 import type { Movie } from '../data/movies';
 import { Progress } from '../components/ui/progress';
 import Image from 'next/image';
+import { useMemo, useState } from 'react';
 
 interface MovieCardProps {
   movie: Movie;
   showProgress?: boolean;
   progress?: number;
   size?: 'sm' | 'md' | 'lg';
-  /** Index trong grid - dùng cho LCP optimization (index 0-5 = above fold) */
   priority?: boolean;
 }
 
 export function MovieCard({ movie, showProgress, progress = 0, size = 'md', priority = false }: MovieCardProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+
   const sizeClasses = {
     sm: 'aspect-[2/3]',
     md: 'aspect-[2/3]',
     lg: 'aspect-[16/9]'
   };
+
+  const imageSrc = useMemo(() => {
+    const preferred = size === 'lg' ? movie.thumb_url : movie.poster_url;
+    const candidate = preferred && !preferred.includes('undefined') ? preferred : '';
+    const thumbSafe = movie.thumb_url && !movie.thumb_url.includes('undefined') ? movie.thumb_url : '';
+    return candidate || thumbSafe || '/file.svg';
+  }, [size, movie.poster_url, movie.thumb_url]);
 
   return (
     <Link
@@ -33,36 +44,27 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md', prio
     >
       {/* Thumbnail */}
       <div className="relative w-full h-full">
-        <Image
-          src={size === 'lg' ? movie.thumb_url : movie.poster_url}
-          alt={movie.name}
-          fill
-          // Priority = true for above-the-fold cards (LCP optimization)
-          // Lazy load for remaining cards
-          priority={priority}
-          loading={priority ? undefined : 'lazy'}
-          // quality mặc định của Next.js là 75. Set 40-60 sẽ làm ảnh bị mờ nét / vỡ hạt (compression artifacts).
-          // Tăng mức độ nét: 90 cho ảnh above-the-fold, 75 (mặc định) cho các ảnh lazy-load bên dưới.
-          quality={priority ? 90 : 75}
-          placeholder="blur"
-          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
-          // Grid layout: 2col(mobile) → 3col(sm:640px) → 4col(md:768px) → 5col(lg:1024px) → 6col(xl:1280px)
-          // Container: max-w-[1440px] với padding px-4 (16px mỗi bên) và lg:px-8 (32px mỗi bên)
-          // Gap giữa các card: gap-4 = 16px
-          //
-          // Tính toán chính xác (tránh Lighthouse "properly sized images" warning):
-          // xs  < 640px : 2 cols, container=100vw, padding=32px, gap=16px → (100vw - 32px - 16px) / 2 ≈ 50vw - 24px
-          // sm  640-767 : 3 cols, container≤100vw, padding=32px, gap=32px → (100vw - 32px - 32px) / 3 ≈ calc(33vw - 21px)
-          // md  768-1023: 4 cols, container≤100vw, padding=32px, gap=48px → (100vw - 32px - 48px) / 4 ≈ calc(25vw - 20px)
-          // lg 1024-1279: 5 cols, container≤100vw, padding=64px, gap=64px → (100vw - 64px - 64px) / 5 ≈ calc(20vw - 26px)
-          // xl ≥1280px  : 6 cols, container≤1440px, padding=64px, gap=80px → (min(1440px,100vw) - 64px - 80px) / 6 ≈ 216px
-          sizes={
-            size === 'lg'
-              ? '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
-              : '(max-width: 639px) calc(50vw - 24px), (max-width: 767px) calc(33vw - 21px), (max-width: 1023px) calc(25vw - 20px), (max-width: 1279px) calc(20vw - 26px), 260px'
-          }
-          className="object-cover transition-opacity duration-300 group-hover:scale-110"
-        />
+        {imageFailed ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-300 text-xs px-3 text-center">
+            Ảnh đang được cập nhật
+          </div>
+        ) : (
+          <Image
+            src={imageSrc}
+            alt={movie.name}
+            fill
+            priority={priority}
+            loading={priority ? 'eager' : 'lazy'}
+            quality={priority ? 90 : 75}
+            onError={() => setImageFailed(true)}
+            sizes={
+              size === 'lg'
+                ? '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                : '(max-width: 639px) calc(50vw - 24px), (max-width: 767px) calc(33vw - 21px), (max-width: 1023px) calc(25vw - 20px), (max-width: 1279px) calc(20vw - 26px), 260px'
+            }
+            className="object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+        )}
         
         {/* Overlay */}
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

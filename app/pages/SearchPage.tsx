@@ -75,8 +75,8 @@ export default async function SearchPage({ searchParams = {} }: SearchPageProps)
     ...(quality ? [{ label: `✨ ${quality}`, key: 'quality' }] : []),
   ];
 
-  const currentPage = pagination.currentPage;
   const totalPages = effectiveTotalPages;
+  const currentPage = Math.max(1, Math.min(pagination.currentPage, totalPages || 1));
 
   const prevPageUrl = currentPage > 1
     ? buildPageUrl(searchParams, { page: String(currentPage - 1) })
