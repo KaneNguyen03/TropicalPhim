@@ -9,6 +9,18 @@ import { Progress } from '../components/ui/progress';
 import Image from 'next/image';
 import { useMemo } from 'react';
 
+const customImageLoader = ({ src, width, quality }: { src: string; width?: number; quality?: number }) => {
+  if (!src.startsWith('http')) {
+    return src;
+  }
+
+  const url = new URL(process.env.NEXT_PUBLIC_IMAGE_CDN_URL || 'https://cdn.example.com/api/image');
+  url.searchParams.set('src', src);
+  if (width) url.searchParams.set('w', String(width));
+  url.searchParams.set('q', String(quality ?? 75));
+  return String(url);
+};
+
 interface MovieCardProps {
   movie: Movie;
   showProgress?: boolean;
@@ -44,10 +56,12 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md', prio
       {/* Thumbnail */}
       <div className="relative w-full h-full">
           <Image
+            loader={customImageLoader}
             src={imageSrc}
             alt={movie.name}
             fill
             loading={priority ? 'eager' : 'lazy'}
+            unoptimized={false}
             sizes={
               size === 'lg'
                 ? '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
