@@ -181,7 +181,7 @@ interface PosterCardProps {
   className?: string;
 }
 
-export function PosterCard({ movie, isActive = true, isPriority = false, className }: PosterCardProps) {
+export function PosterCard({ movie, isActive = true, isPriority = true, className }: PosterCardProps) {
 
   const posterSafe = movie.poster_url && !movie.poster_url.includes('undefined') ? movie.poster_url : '';
   const thumbSafe = movie.thumb_url && !movie.thumb_url.includes('undefined') ? movie.thumb_url : '';
