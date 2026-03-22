@@ -71,6 +71,7 @@ export default async function DetailPage({ slug }: { slug: string }) {
             sizes="100vw"
             priority
             loading="eager"
+            unoptimized
             className="object-cover"
           />
           <div className="absolute inset-0 bg-linear-to-r from-black via-black/80 to-transparent" />
@@ -87,6 +88,7 @@ export default async function DetailPage({ slug }: { slug: string }) {
                 alt={movie.name}
                 fill
                 sizes="(max-width: 768px) 0vw, 256px"
+                unoptimized
                 className="rounded-lg shadow-2xl border-2 border-white/10 object-cover"
               />
             </div>

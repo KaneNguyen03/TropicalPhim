@@ -178,6 +178,7 @@ export function SearchBar({ placeholder = 'Tìm phim, diễn viên...' }: { plac
                     alt={movie.name}
                     fill
                     sizes="40px"
+                    unoptimized
                     className="object-cover"
                   />
                 </div>

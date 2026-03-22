@@ -34,6 +34,7 @@ export function EpisodeThumbnail({
           height={height}
           priority={priority}
           loading={priority ? "eager" : "lazy"}
+          unoptimized
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover transition-transform duration-300 hover:scale-105"
         />
@@ -49,6 +50,7 @@ export function EpisodeThumbnail({
         fill
         priority={priority}
         loading={priority ? "eager" : "lazy"}
+        unoptimized
         sizes="(max-width: 768px) 100vw, 33vw"
         className="object-cover transition-transform duration-300 hover:scale-105"
       />
