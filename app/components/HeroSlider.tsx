@@ -182,16 +182,10 @@ interface PosterCardProps {
 }
 
 export function PosterCard({ movie, isActive = true, isPriority = false, className }: PosterCardProps) {
-  const [useThumbFallback, setUseThumbFallback] = useState(false);
-  const [useStaticFallback, setUseStaticFallback] = useState(false);
 
   const posterSafe = movie.poster_url && !movie.poster_url.includes('undefined') ? movie.poster_url : '';
   const thumbSafe = movie.thumb_url && !movie.thumb_url.includes('undefined') ? movie.thumb_url : '';
-  const imageSrc = useStaticFallback
-    ? '/file.svg'
-    : useThumbFallback
-      ? (thumbSafe || '/file.svg')
-      : (posterSafe || thumbSafe || '/file.svg');
+  const imageSrc = posterSafe || thumbSafe || '/file.svg';
 
   return (
     <div
@@ -211,18 +205,8 @@ export function PosterCard({ movie, isActive = true, isPriority = false, classNa
           alt={movie.name}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-          priority={isPriority}
-          quality={isPriority ? 90 : 75}
           loading={isPriority ? 'eager' : 'lazy'}
-          onError={() => {
-            if (!useThumbFallback) {
-              setUseThumbFallback(true);
-              return;
-            }
-            if (!useStaticFallback) {
-              setUseStaticFallback(true);
-            }
-          }}
+          priority={isPriority}
           className="object-cover transform transition-transform duration-700 group-hover:scale-110"
         />
 
@@ -277,10 +261,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               alt=""
               fill
               sizes="100vw"
-              priority={index === 0}
               loading={index === 0 ? 'eager' : 'lazy'}
-              quality={45}
-              // Giảm blur/scale quá nặng để tránh cảm giác ảnh bị bệt hoặc đen nền.
               className="object-cover blur-[22px] md:blur-[36px] scale-110 md:scale-125 opacity-45 md:opacity-60 transition-transform duration-[12s] ease-linear"
               style={{ transform: index === currentIndex ? 'scale(1.22)' : 'scale(1.12)' }}
             />
@@ -309,7 +290,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
           <div className="flex flex-col-reverse md:flex-row items-center justify-center md:justify-between gap-6 md:gap-8 lg:gap-16">
 
             {/* Left/Bottom: Text content */}
-            <div className="flex-1 w-full min-w-0 max-w-full md:max-w-[560px] z-20">
+            <div className="flex-1 w-full min-w-0 max-w-full md:max-w-140 z-20">
               {currentMovie && (
                 <SlideContent
                   movie={currentMovie}
@@ -321,7 +302,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
             {/* Right/Top: Poster stack */}
             {/* On mobile: Poster is prominently centered on top. On desktop: pushed to right */}
             <div
-              className="relative shrink-0 flex items-center justify-center w-[58vw] sm:w-[45vw] md:w-[320px] lg:w-[380px] xl:w-[440px] 2xl:w-[480px] shadow-2xl"
+              className="relative shrink-0 flex items-center justify-center w-[58vw] sm:w-[45vw] md:w-[320px] lg:w-95 xl:w-110 2xl:w-120 shadow-2xl"
               style={{ aspectRatio: '2/3', maxHeight: '70vh' }}
             >
               <div className="absolute inset-0">

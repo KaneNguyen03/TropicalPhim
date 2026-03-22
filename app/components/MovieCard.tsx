@@ -7,7 +7,7 @@ import { cn } from '../components/ui/utils';
 import type { Movie } from '../data/movies';
 import { Progress } from '../components/ui/progress';
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 interface MovieCardProps {
   movie: Movie;
@@ -18,7 +18,6 @@ interface MovieCardProps {
 }
 
 export function MovieCard({ movie, showProgress, progress = 0, size = 'md', priority = false }: MovieCardProps) {
-  const [imageFailed, setImageFailed] = useState(false);
 
   const sizeClasses = {
     sm: 'aspect-[2/3]',
@@ -44,19 +43,11 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md', prio
     >
       {/* Thumbnail */}
       <div className="relative w-full h-full">
-        {imageFailed ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-300 text-xs px-3 text-center">
-            Ảnh đang được cập nhật
-          </div>
-        ) : (
           <Image
             src={imageSrc}
             alt={movie.name}
             fill
-            priority={priority}
             loading={priority ? 'eager' : 'lazy'}
-            quality={priority ? 90 : 75}
-            onError={() => setImageFailed(true)}
             sizes={
               size === 'lg'
                 ? '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
@@ -64,8 +55,6 @@ export function MovieCard({ movie, showProgress, progress = 0, size = 'md', prio
             }
             className="object-cover transition-transform duration-300 group-hover:scale-110"
           />
-        )}
-        
         {/* Overlay */}
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
