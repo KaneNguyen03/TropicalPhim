@@ -205,8 +205,9 @@ export function PosterCard({ movie, isActive = true, isPriority = false, classNa
           alt={movie.name}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-          loading={isPriority ? 'eager' : 'lazy'}
           priority={isPriority}
+          loading={isPriority ? 'eager' : 'lazy'}
+          fetchPriority={isPriority ? 'high' : 'auto'}
           unoptimized
           className="object-cover transform transition-transform duration-700 group-hover:scale-110"
         />
@@ -262,7 +263,9 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               alt=""
               fill
               sizes="100vw"
+              priority={index === 0}
               loading={index === 0 ? 'eager' : 'lazy'}
+              fetchPriority={index === 0 ? 'high' : 'auto'}
               unoptimized
               className="object-cover blur-[22px] md:blur-[36px] scale-110 md:scale-125 opacity-45 md:opacity-60 transition-transform duration-[12s] ease-linear"
               style={{ transform: index === currentIndex ? 'scale(1.22)' : 'scale(1.12)' }}

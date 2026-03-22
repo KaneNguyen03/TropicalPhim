@@ -71,6 +71,7 @@ export default async function DetailPage({ slug }: { slug: string }) {
             sizes="100vw"
             priority
             loading="eager"
+            fetchPriority="high"
             unoptimized
             className="object-cover"
           />
@@ -88,6 +89,9 @@ export default async function DetailPage({ slug }: { slug: string }) {
                 alt={movie.name}
                 fill
                 sizes="(max-width: 768px) 0vw, 256px"
+                priority
+                loading="eager"
+                fetchPriority="high"
                 unoptimized
                 className="rounded-lg shadow-2xl border-2 border-white/10 object-cover"
               />
