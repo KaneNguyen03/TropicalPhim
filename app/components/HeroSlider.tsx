@@ -1,6 +1,6 @@
 'use client'
 
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import { ChevronLeft, ChevronRight, Play, Info, Star } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,19 +10,6 @@ import { Badge } from '@/app/components/ui/badge';
 import { cn } from '@/app/components/ui/utils';
 import type { Movie } from '@/app/data/movies';
 import { useHeroSlider } from '@/app/hooks/useHeroSlider';
-
-const customImageLoader = ({ src, width, quality }: { src: string; width?: number; quality?: number }) => {
-  // Dùng CDN proxy chính của bạn để tránh Next.js route /_next/image trả 402
-  if (!src.startsWith('http')) {
-    return src;
-  }
-
-  const url = new URL(process.env.NEXT_PUBLIC_IMAGE_CDN_URL || 'https://cdn.example.com/api/image');
-  url.searchParams.set('src', src);
-  if (width) url.searchParams.set('w', String(width));
-  url.searchParams.set('q', String(quality ?? 75));
-  return String(url);
-};
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -214,14 +201,13 @@ export function PosterCard({ movie, isActive = true, isPriority = false, classNa
       {/* 2. Poster Container */}
       <div className="relative h-full w-full overflow-hidden rounded-xl shadow-2xl transition-transform duration-500 ease-out group-hover:scale-[1.02] group-hover:-translate-y-2">
         <Image
-          loader={customImageLoader}
           src={imageSrc}
           alt={movie.name}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
           loading={isPriority ? 'eager' : 'lazy'}
           priority={isPriority}
-          unoptimized={false}
+          unoptimized
           className="object-cover transform transition-transform duration-700 group-hover:scale-110"
         />
 
@@ -268,7 +254,6 @@ export function HeroSlider({ movies }: HeroSliderProps) {
           {/* Ambient blurred backdrop */}
           <div className="absolute inset-0 overflow-hidden">
             <Image
-              loader={customImageLoader}
               src={
                 (movie.poster_url && !movie.poster_url.includes('undefined') ? movie.poster_url : '') ||
                 (movie.thumb_url && !movie.thumb_url.includes('undefined') ? movie.thumb_url : '') ||
@@ -278,7 +263,7 @@ export function HeroSlider({ movies }: HeroSliderProps) {
               fill
               sizes="100vw"
               loading={index === 0 ? 'eager' : 'lazy'}
-              unoptimized={false}
+              unoptimized
               className="object-cover blur-[22px] md:blur-[36px] scale-110 md:scale-125 opacity-45 md:opacity-60 transition-transform duration-[12s] ease-linear"
               style={{ transform: index === currentIndex ? 'scale(1.22)' : 'scale(1.12)' }}
             />
